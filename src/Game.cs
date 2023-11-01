@@ -14,7 +14,7 @@ class Game
 	Player player;
 
 	// Other things
-	private bool debugMode;
+	private bool debugMode = true;
 
 
 	public void Run()
@@ -61,6 +61,11 @@ class Game
 			// Toggle debug mode
 			debugMode = !debugMode;
 		}
+		if (Raylib.IsKeyPressed(KeyboardKey.KEY_SLASH))
+		{
+			// copy debug info to clipboard
+			Raylib.SetClipboardText($"Captured at {DateTime.Now}\n\nPosition: {player.Camera.position}\nTarget: {player.Camera.target}");
+		}
 	}
 
 	// TODO: Render in 4:3 squished
@@ -73,8 +78,8 @@ class Game
 		Raylib.BeginMode3D(player.Camera);
 		Raylib.ClearBackground(Color.MAGENTA);
 
-		Raylib.DrawCube(Vector3.Zero, 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
-		Raylib.DrawCubeWires(Vector3.Zero, 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
+		Raylib.DrawCube(new Vector3(-5, 0, 0), 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
+		Raylib.DrawCubeWires(new Vector3(-5, 0, 0), 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
 
 
 		Raylib.EndMode3D();
@@ -82,7 +87,7 @@ class Game
 		Raylib.DrawFPS(10, 10);
 		if (debugMode)
 		{
-			Raylib.DrawText($"camera position: {player.Camera.position}\ntarget position: {player.Camera.target}\nrunning: {player.Running}", 10, 50, 25, Color.BLACK);
+			Raylib.DrawText($"Position: {player.Camera.position}\n Target: {player.Camera.target}", 10, 50, 25, Color.BLACK);
 		}
 
 		Raylib.EndDrawing();
