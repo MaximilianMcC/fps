@@ -6,6 +6,12 @@ class Player
 	// public Camera3D Camera;
 	public Camera3D Camera;
 	public Vector3 Position = Vector3.Zero;
+	public float pitch = 0;
+	public float yaw = 0;
+
+	// Speed stuff
+	private const float walkSpeed = 10f;
+	private const float runSpeed = 15f;
 
 	// Make a new player
 	public Player()
@@ -14,51 +20,82 @@ class Player
 		Camera = new Camera3D
 		{
 			position = new Vector3(Position.X, Position.Y + 1, Position.Z),
-			target = Position + Vector3.UnitZ,
+			target = Vector3.Zero,
 			up = Vector3.UnitY,
 			fovy = Settings.Fov,
 			projection = CameraProjection.CAMERA_PERSPECTIVE
 		};
-	
-		//! debug
-		// Settings.Sensitivity = 0.00001f;
 	}
 
 	// Update
 	public void Update(float deltaTime)
 	{
+		// Movement(deltaTime);
 		Movement(deltaTime);
 
+		// Look at some random cube
 		if (Raylib.IsKeyPressed(KeyboardKey.KEY_F9))
 		{
 			Console.WriteLine("Should eb able to se cube rn🙏🙏");
-			Camera.target = new Vector3(-463999f, -150332f, 0f);
+			yaw = -1.5f;
+			pitch = 0;
 			Camera.position = new Vector3(0, 1, 0);
 		}
 	}
 
-	private void Movement(float deltaTime)
+	// Move the player
+	// TODO: Maybe split mouse and keyboard stuff into two different methods for improved readability
+	public void Movement(float deltaTime)
 	{
-		float speed = 0.00001f;
+		// Camera rotation
+		Vector2 mouseDelta = Raylib.GetMouseDelta() * -Settings.Sensitivity;
+		yaw += mouseDelta.X;
+		pitch += mouseDelta.Y;
 
-		// Looking around with mouse
-		Vector2 mouseDelta = Raylib.GetMouseDelta() / Settings.Sensitivity;
-		Camera.target.X += mouseDelta.X;
-		Camera.target.Y -= mouseDelta.Y;
+		// Stop player from snapping their neck
+		if (pitch > 80.0f)  pitch = 80.0f;
+		else if (pitch < -80.0f) pitch = -80.0f;
 
+		// Calculate target from pitch and yaw
+		Vector3 direction = new Vector3(
+			(float)(Math.Cos(pitch) * Math.Sin(yaw)),
+			(float)Math.Sin(pitch),
+			(float)(Math.Cos(pitch) * Math.Cos(yaw))
+		);
 
-		// Forwards/backwards movement
-		if (Raylib.IsKeyDown(Settings.Forwards)) Camera.position += (Camera.target * speed) * deltaTime;
-		if (Raylib.IsKeyDown(Settings.Backwards)) Camera.position -= (Camera.target * speed) * deltaTime;
+		// Calculate right vector for moving in the direction that the player is looking
+		Vector3 right = new Vector3(
+			(float)Math.Sin(yaw - Math.PI / 2.0f),
+			0,
+			(float)Math.Cos(yaw - Math.PI / 2.0f)
+		);
 
-		// Left/right movement (strafing)
-		if (Raylib.IsKeyDown(Settings.Left)) Camera.position -= (Vector3.Cross(Camera.target, Camera.up) * speed) * deltaTime;
-		if (Raylib.IsKeyDown(Settings.Right)) Camera.position += (Vector3.Cross(Camera.target, Camera.up) * speed) * deltaTime;
+		// Check for if the player wants to run or walk
+		float speed = walkSpeed;
+		if (Raylib.IsKeyDown(Settings.Sprint)) speed = runSpeed;
 
+		// Keyboard movement input
+		Vector3 newPosition = Position;
 
-		// Move with mouse
-		Camera.position -= Vector3.Cross(Camera.target, Camera.up) * ((mouseDelta.X / Settings.Sensitivity) * deltaTime);
+		// Forwards and backwards (W, S)
+		if (Raylib.IsKeyDown(Settings.Forwards)) newPosition += direction;
+		if (Raylib.IsKeyDown(Settings.Backwards)) newPosition -= direction;
+
+		// Left and right/strafing (A, D)
+		if (Raylib.IsKeyDown(Settings.Left)) newPosition -= right;
+		if (Raylib.IsKeyDown(Settings.Right)) newPosition += right;
+
+		// Apply speed and delta time
+		// TODO: Normalize to keep same speed
+		newPosition *= speed * deltaTime;
+
+		// Move and update the camera
+		Camera.position += newPosition;
+		Camera.target = Camera.position + direction;
 	}
+
+
+
 
 
 }

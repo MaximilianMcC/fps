@@ -64,7 +64,7 @@ class Game
 		if (Raylib.IsKeyPressed(KeyboardKey.KEY_SLASH))
 		{
 			// copy debug info to clipboard
-			Raylib.SetClipboardText($"Captured at {DateTime.Now}\n\nPosition: {player.Camera.position}\nTarget: {player.Camera.target}");
+			Raylib.SetClipboardText($"Captured at {DateTime.Now}\n\nPosition: {player.Camera.position}\nTarget: {player.Camera.target}\nyaw & pitch: {player.yaw}, {player.pitch}");
 		}
 	}
 
@@ -87,7 +87,7 @@ class Game
 		Raylib.DrawFPS(10, 10);
 		if (debugMode)
 		{
-			Raylib.DrawText($"Position: {player.Camera.position}\n Target: {player.Camera.target}", 10, 50, 25, Color.BLACK);
+			Raylib.DrawText($"Position: {player.Camera.position}\nTarget: {player.Camera.target}\nyaw & pitch: {player.yaw}, {player.pitch}", 10, 50, 25, Color.BLACK);
 		}
 
 		Raylib.EndDrawing();
