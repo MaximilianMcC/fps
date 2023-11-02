@@ -14,7 +14,7 @@ class Game
 	Player player;
 
 	// Other things
-	private bool debugMode = true;
+	private bool paused = false;
 
 
 	public void Run()
@@ -53,7 +53,22 @@ class Game
 		// Get delta time
 		float deltaTime = Raylib.GetFrameTime();
 
+		// Update stuff that can't be paused
 		Debug.Terminal.Update();
+
+		// Check for if the game is paused
+		if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE)) 
+		{
+			// Toggle paused
+			paused = !paused;
+
+			// Enable/disable cursor
+			if (paused) Raylib.EnableCursor();
+			else Raylib.DisableCursor();
+		}
+		if (paused) return;
+
+		// Update stuff that can be paused
 		player.Update(deltaTime);
 	}
 
@@ -65,13 +80,17 @@ class Game
 		Raylib.BeginMode3D(player.Camera);
 		Raylib.ClearBackground(Color.MAGENTA);
 
+
+
 		Raylib.DrawCube(new Vector3(-5, 0, 0), 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
 		Raylib.DrawCubeWires(new Vector3(-5, 0, 0), 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
 
 
+		// Draw 2D stuff
 		Raylib.EndMode3D();
 		Debug.Terminal.Render();
 
+		// Stop drawing everything
 		Raylib.EndDrawing();
 	}
 
