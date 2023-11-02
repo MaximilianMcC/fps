@@ -53,26 +53,13 @@ class Game
 		// Get delta time
 		float deltaTime = Raylib.GetFrameTime();
 
+		Debug.Terminal.Update();
 		player.Update(deltaTime);
-
-		// Debug thingy
-		if (Raylib.IsKeyPressed(KeyboardKey.KEY_GRAVE))
-		{
-			// Toggle debug mode
-			debugMode = !debugMode;
-		}
-		if (Raylib.IsKeyPressed(KeyboardKey.KEY_SLASH))
-		{
-			// copy debug info to clipboard
-			Raylib.SetClipboardText($"Captured at {DateTime.Now}\n\nPosition: {player.Camera.position}\nTarget: {player.Camera.target}\nyaw & pitch: {player.yaw}, {player.pitch}");
-		}
 	}
 
 	// TODO: Render in 4:3 squished
 	private void Render()
-	{		
-		// Raylib.BeginDrawing();
-
+	{
 		// Draw 3D stuff
 		Raylib.BeginDrawing();
 		Raylib.BeginMode3D(player.Camera);
@@ -83,12 +70,7 @@ class Game
 
 
 		Raylib.EndMode3D();
-
-		Raylib.DrawFPS(10, 10);
-		if (debugMode)
-		{
-			Raylib.DrawText($"Position: {player.Camera.position}\nTarget: {player.Camera.target}\nyaw & pitch: {player.yaw}, {player.pitch}", 10, 50, 25, Color.BLACK);
-		}
+		Debug.Terminal.Render();
 
 		Raylib.EndDrawing();
 	}

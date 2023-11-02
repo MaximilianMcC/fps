@@ -13,4 +13,7 @@ class Settings
 	// Mouse movement stuff
 	public static float Sensitivity = 0.003f;
 	public static float Fov = 60f;
+
+	// Debug/other stuff
+	public static KeyboardKey ToggleDebug =  KeyboardKey.KEY_GRAVE;
 }

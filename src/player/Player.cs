@@ -85,9 +85,11 @@ class Player
 		if (Raylib.IsKeyDown(Settings.Left)) newPosition -= right;
 		if (Raylib.IsKeyDown(Settings.Right)) newPosition += right;
 
-		// Apply speed and delta time
+		// Apply speed and delta time. Also remove any Y movement to stop the player from flying
+		// TODO: Reenable the Y thingy to make the player fly in a spectator mode or something
 		// TODO: Normalize to keep same speed
 		newPosition *= speed * deltaTime;
+		newPosition.Y = 0;
 
 		// Move and update the camera
 		Camera.position += newPosition;
