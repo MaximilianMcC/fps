@@ -12,6 +12,7 @@ class Game
 
 	// Things
 	Player player;
+	Model monitor;
 
 	// Other things
 	private bool paused = false;
@@ -46,6 +47,15 @@ class Game
 	private void Start()
 	{
 		player = new Player();
+
+		// Load a model
+		Model model = Raylib.LoadModel("./assets/monitor.obj");
+		
+		// Add the texture
+		Texture2D texture = Raylib.LoadTexture("./assets/monitor.png");
+		Raylib.SetMaterialTexture(ref model, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref texture);
+		
+		monitor = model;
 	}
 
 	private void Update()
@@ -82,9 +92,12 @@ class Game
 
 
 
+		// Raylib.DrawModel(monitor, Vector3.Zero, 1f, Color.WHITE);
+		Raylib.DrawModel(monitor, Vector3.Zero, 1f, Color.WHITE);
 		Raylib.DrawCube(new Vector3(-5, 0, 0), 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
 		Raylib.DrawCubeWires(new Vector3(-5, 0, 0), 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
 
+		
 
 		// Draw 2D stuff
 		Raylib.EndMode3D();
