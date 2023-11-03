@@ -1,25 +1,40 @@
 using System.Numerics;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
+using System.Reflection.Metadata.Ecma335;
 using Raylib_cs;
 
 public class Debug
 {
-	public static bool DebugMode { get; set; } = false;
+	public static bool DebugMode { get; set; } = true;
 	public static bool LogInConsole { get; set; } = false;
 
-	public static void Log(string text)
+
+
+
+	public class Terminal
 	{
-		Message message = new Message();
-		Terminal.Chat.Add(message);
+		public static void Update()
+		{
+			// Toggle debug mode
+			if (Raylib.IsKeyPressed(Settings.ToggleDebug)) DebugMode = !DebugMode;
+		}
+
+		public static void Render()
+		{
+
+		}
 	}
+
+
 
 	// FPS counter
 	// TODO: Make memory graph also
 	public class FPSGraph
 	{
-		// TODO: Make length lower/higher for more/less detail
-		// TODO: Stop crazy red -> green spike at start
+		// Make the window
+		//! Its prolly a bad idea to make it in here but idk it works
+		private static Window window = new Window("FPS graph", new Vector2(10, 10), new Vector2(300, 200), true);
+
+		// TODO: Stop crazy spike at start
 		private static int[] previousFPS = new int[512];
 
 		public static void Update()
@@ -34,106 +49,87 @@ public class Debug
 				previousFPS[i] = previousFPS[i + 1];
 			}
 			previousFPS[previousFPS.Length - 1] = currentFPS;
+
+			window.Update();
 		}
 
 		public static void Render()
 		{
 			// Check for if debug mode is enabled, then draw the fps
 			if (!DebugMode) return;
+			window.Render();
 
-			const int width = 300;
-			const int height = 200;
+			// Positional stuff
 			const int padding = 20;
+			const int padding2 = padding * 2;
+			float x, y;
 
-			// TODO: Make draggable
-			// TODO: Add fancy scrolling grid pattern in back
-			// Draw box
-			Raylib.DrawRectangle(10, 10, width + padding, height + padding, new Color(13, 25, 38, 255));
+			// Calculate the scale factor for drawing the graph
+			float scaleX = (float)(window.Width - padding2) / (previousFPS.Length - 1);
+			float scaleY = (float)(window.Height - padding2) / Settings.MaxFps;
 
-			// Draw FPS text
-			Raylib.DrawText($"FPS: {Raylib.GetFPS()}", 10 + padding, height - padding, 30, Color.BEIGE);
-
-			// Calculate the scale factor for drawing
-			float scaleX = (float)width / (previousFPS.Length - 1);
-			float scaleY = (float)height / Settings.MaxFps;
-
+			// Draw the graph
 			for (int i = 0; i < previousFPS.Length - 1; i++)
 			{
-				// Get the start, and end positions for the line
-				Vector2 start = new Vector2(i * scaleX + padding, height + padding - previousFPS[i] * scaleY);
-				Vector2 end = new Vector2((i + 1) * scaleX + padding, height + padding - previousFPS[i + 1] * scaleY);
+				// Calculate the position for the start line position
+				x = window.X + (i * scaleX) + padding;
+				y = (window.BodyY + window.BodyHeight) + padding - Math.Min(previousFPS[i] * scaleY, window.BodyHeight) - padding;
+				Vector2 start = new Vector2(x, y);
+
+				// Calculate the position for the end line position
+				x = window.X + ((i + 1) * scaleX) + padding;
+				y = (window.BodyY + window.BodyHeight) + padding - Math.Min(previousFPS[i + 1] * scaleY, window.BodyHeight) - padding;
+				Vector2 end = new Vector2(x, y);
 
 				// Change color based on fps relational to max fps
-				Color color = new Color(131, 255, 8, 255); //? green
-				if (previousFPS[i] <= Settings.MaxFps / 2) color = new Color(255, 131, 8, 255); //? orange
-				if (previousFPS[i] <= Settings.MaxFps / 4) color = new Color(255, 8, 131, 255); //? red
+				Color color = Colors.Green;
+				if (previousFPS[i] <= Settings.MaxFps / 2) color = Colors.Orange;
+				if (previousFPS[i] <= Settings.MaxFps / 5) color = Colors.Red;
 
-				// Draw it on the graph
+				// Draw the line/plot the current fps
 				Raylib.DrawLineEx(start, end, 2, color);
 			}
-		}
-	}
 
-	//! test remove later trust
-	public class Test
-	{
-		private Window window;
-
-		public Test()
-		{
-			// Make the window
-			window = new Window("Test", new Vector2(500, 500), new Vector2(400, 300), true);
-		}
-
-		public void Update()
-		{
-			window.Update();
-		}
-
-		public void Render()
-		{
-			window.Render();
+			// Draw the FPS text
+			//? 35 is font size
+			x = window.X + padding;
+			y = (window.Y + window.Height) - 35 - padding;
+			Raylib.DrawText($"FPS: {Raylib.GetFPS()}", (int)x, (int)y, 35, Color.BEIGE);
 		}
 	}
 
 
 
-
-
-
-
-
-
+	// TODO: Make resizable
 	protected class Window
 	{
-		private int windowX;
-		private int windowY;
-		private int windowWidth;
-		private int windowHeight;
-		private const int padding = 10;
+		public int X;
+		public int Y;
+		public int Width;
+		public int Height;
 
-		private const int titleHeight = 50;
+		private const int padding = 10;
+		public int BodyY;
+		public int BodyHeight;
+
+		public const int TitleHeight = 45;
 		private string titleText;
 
 		private bool draggable;
 		private bool beingDragged;
 		private Vector2 dragOffset;
 
-		protected readonly static Color Green = new Color(131, 255, 8, 255);
-		protected readonly static Color Red = new Color(255, 8, 131, 255);
-		protected readonly static Color Orange = new Color(255, 131, 8, 255);
-		protected readonly static Color Purple = new Color(131, 8, 255, 255);
-		protected readonly static Color Gray = new Color(156, 156, 156, 255);
-		protected readonly static Color Tan = new Color(206, 145, 120, 255);
-
 		// Make a new window
 		public Window(string title, Vector2 startPosition, Vector2 size, bool canBeDragged)
 		{
-			windowX = (int)startPosition.X;
-			windowY = (int)startPosition.Y;
+			X = (int)startPosition.X;
+			Y = (int)startPosition.Y;
 
-			windowWidth = (int)size.X;
-			windowHeight = (int)size.Y;
+			Width = (int)size.X;
+			Height = (int)size.Y;
+
+			BodyY = Y + TitleHeight;
+			BodyHeight = Height - TitleHeight;
 
 			// Set values
 			titleText = title;
@@ -143,13 +139,14 @@ public class Debug
 		// Update everything
 		public void Update()
 		{
-			// TODO: Check for if debug mode is enabled.
+			// Check for if debug mode is enabled.
+			if (!DebugMode) return;
 
 			// Check for if we can drag the window
 			if (!draggable) return;
 
 			// Check for if they are clicking on the title bar and dragging it
-			Rectangle titleRectangle = new Rectangle(windowX, windowY, windowWidth, titleHeight);
+			Rectangle titleRectangle = new Rectangle(X, Y, Width, TitleHeight);
 			if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), titleRectangle) && Raylib.IsMouseButtonDown(MouseButton.MOUSE_BUTTON_LEFT))
 			{
 				// Setup dragging
@@ -157,15 +154,15 @@ public class Debug
 				{
 					beingDragged = true;
 
-					// Get the drag offset and whatnot
+					// Get the drag offset
 					Vector2 mouse = Raylib.GetMousePosition();
-					dragOffset = mouse - new Vector2(windowX, windowY);
+					dragOffset = mouse - new Vector2(X, Y);
 				}
 				
-				// Update the X and Y of the terminal to move it
-				// TODO: Move everything at once
-				windowX = ((int)Raylib.GetMousePosition().X) - ((int)dragOffset.X);
-				windowY = ((int)Raylib.GetMousePosition().Y) - ((int)dragOffset.Y);
+				// Update the X and Y of the window to move it
+				X = ((int)Raylib.GetMousePosition().X) - ((int)dragOffset.X);
+				Y = ((int)Raylib.GetMousePosition().Y) - ((int)dragOffset.Y);
+				BodyY = Y + TitleHeight;
 
 			}
 			else beingDragged = false;
@@ -178,9 +175,21 @@ public class Debug
 			if (!DebugMode) return;
 
 			// Draw the background and title
-			Raylib.DrawRectangle(windowX, windowY, windowWidth, windowHeight, new Color(13, 25, 38, 255));
-			Raylib.DrawRectangle(windowX, windowY, windowWidth, titleHeight, new Color(54, 54, 54, 255));
-			Raylib.DrawText(titleText, windowX + padding, windowY + (padding / 2), 35, Color.LIGHTGRAY);
+			Raylib.DrawRectangle(X, Y, Width, Height, new Color(13, 25, 38, 255));
+			Raylib.DrawRectangle(X, Y, Width, TitleHeight, new Color(54, 54, 54, 255));
+			Raylib.DrawText(titleText, X + padding, Y + (padding / 2), 35, Color.LIGHTGRAY);
 		}
+	}
+
+
+
+	struct Colors
+	{
+		public readonly static Color Green = new Color(131, 255, 8, 255);
+		public readonly static Color Red = new Color(255, 8, 131, 255);
+		public readonly static Color Orange = new Color(255, 131, 8, 255);
+		public readonly static Color Purple = new Color(131, 8, 255, 255);
+		public readonly static Color Gray = new Color(156, 156, 156, 255);
+		public readonly static Color Tan = new Color(206, 145, 120, 255);
 	}
 }
