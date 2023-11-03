@@ -8,9 +8,9 @@ class Game
 	// TODO: Mess around with resolution until get something good
 	private const int GAME_WIDTH = 1920;
 	private const int GAME_HEIGHT = 1080;
-	private RenderTexture2D display;
 
 	// Things
+	// TODO: Put in resource manager
 	Player player;
 	Model monitor;
 
@@ -18,20 +18,17 @@ class Game
 	private bool paused = false;
 
 
+	//! remode debug sstuf
+	private int fps = Settings.MaxFps;
+
 	public void Run()
 	{
-		Console.WriteLine("Run");
-
 		// Make raylib window
 		Raylib.InitWindow(GAME_WIDTH, GAME_HEIGHT, "fps gaem");
 		Raylib.SetWindowState(ConfigFlags.FLAG_WINDOW_RESIZABLE);
-		Raylib.SetTargetFPS(144);
+		Raylib.SetTargetFPS(Settings.MaxFps);
 		Raylib.SetExitKey(KeyboardKey.KEY_NULL);
 		Raylib.DisableCursor();
-
-		// Create the render texture for drawing everything on so we can rescale game
-		display = Raylib.LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT);
-
 
 		// Game
 		Start();
@@ -48,13 +45,10 @@ class Game
 	{
 		player = new Player();
 
-		// Load a model
+		// Load a model and texture
 		Model model = Raylib.LoadModel("./assets/monitor.obj");
-		
-		// Add the texture
 		Texture2D texture = Raylib.LoadTexture("./assets/monitor.png");
 		Raylib.SetMaterialTexture(ref model, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref texture);
-		
 		monitor = model;
 	}
 
@@ -63,8 +57,21 @@ class Game
 		// Get delta time
 		float deltaTime = Raylib.GetFrameTime();
 
+
 		// Update stuff that can't be paused
 		Debug.Terminal.Update();
+		Debug.FPSGraph.Update();
+
+		if (Raylib.IsKeyDown(KeyboardKey.KEY_MINUS))
+		{
+			fps++;
+			Raylib.SetTargetFPS(fps);
+		}
+		if (Raylib.IsKeyDown(KeyboardKey.KEY_EQUAL))
+		{
+			fps--;
+			Raylib.SetTargetFPS(fps);
+		}
 
 		// Check for if the game is paused
 		if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE)) 
@@ -91,9 +98,7 @@ class Game
 		Raylib.ClearBackground(Color.MAGENTA);
 
 
-
-		// Raylib.DrawModel(monitor, Vector3.Zero, 1f, Color.WHITE);
-		Raylib.DrawModel(monitor, Vector3.Zero, 1f, Color.WHITE);
+		Raylib.DrawModel(monitor, new Vector3(5, 0, 3), 1f, Color.WHITE);
 		Raylib.DrawCube(new Vector3(-5, 0, 0), 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
 		Raylib.DrawCubeWires(new Vector3(-5, 0, 0), 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
 
@@ -102,6 +107,7 @@ class Game
 		// Draw 2D stuff
 		Raylib.EndMode3D();
 		Debug.Terminal.Render();
+		Debug.FPSGraph.Render();
 
 		// Stop drawing everything
 		Raylib.EndDrawing();

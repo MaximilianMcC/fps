@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 using Raylib_cs;
 
 public class Debug
@@ -12,6 +13,62 @@ public class Debug
 		Terminal.Chat.Add(message);
 	}
 
+	// FPS counter
+	// TODO: Make memory graph also
+	public class FPSGraph
+	{
+		// TODO: Make length lower/higher for more/less detail
+		// TODO: Stop crazy red -> green spike at start
+		private static int[] previousFPS = new int[512];
+
+		public static void Update()
+		{
+			// Get the current FPS
+			int currentFPS = Raylib.GetFPS();
+
+			// Shift everything in the array along, removing the first value and adding the
+			// current FPS to the last value to make it have a scrolling effect
+			for (int i = 0; i < previousFPS.Length - 1; i++)
+			{
+				previousFPS[i] = previousFPS[i + 1];
+			}
+			previousFPS[previousFPS.Length - 1] = currentFPS;
+		}
+
+		public static void Render()
+		{
+			const int width = 300;
+			const int height = 200;
+			const int padding = 20;
+
+			// TODO: Make draggable
+			// TODO: Add fancy scrolling grid pattern in back
+			// Draw box
+			Raylib.DrawRectangle(10, 10, width + padding, height + padding, new Color(13, 25, 38, 255));
+
+			// Draw FPS text
+			Raylib.DrawText($"FPS: {Raylib.GetFPS()}", 10 + padding, height - padding, 30, Color.BEIGE);
+
+			// Calculate the scale factor for drawing
+			float scaleX = (float)width / (previousFPS.Length - 1);
+			float scaleY = (float)height / Settings.MaxFps;
+
+			for (int i = 0; i < previousFPS.Length - 1; i++)
+			{
+				// Get the start, and end positions for the line
+				Vector2 start = new Vector2(i * scaleX + padding, height + padding - previousFPS[i] * scaleY);
+				Vector2 end = new Vector2((i + 1) * scaleX + padding, height + padding - previousFPS[i + 1] * scaleY);
+
+				// Change color based on fps relational to max fps
+				Color color = new Color(131, 255, 8, 255); //? green
+				if (previousFPS[i] <= Settings.MaxFps / 2) color = new Color(255, 131, 8, 255); //? orange
+				if (previousFPS[i] <= Settings.MaxFps / 4) color = new Color(255, 8, 131, 255); //? red
+
+				// Draw it on the graph
+				Raylib.DrawLineEx(start, end, 2, color);
+			}
+		}
+	}
 
 	// Debug terminal/console
 	public class Terminal

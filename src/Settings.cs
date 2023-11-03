@@ -14,6 +14,10 @@ class Settings
 	public static float Sensitivity = 0.003f;
 	public static float Fov = 60f;
 
+	// Graphics/video stuff
+	public static int MaxFps = 144;
+
 	// Debug/other stuff
 	public static KeyboardKey ToggleDebug =  KeyboardKey.KEY_GRAVE;
+
 }
