@@ -483,3 +483,7 @@ $RECYCLE.BIN/
 
 # vscode
 .vscode
+
+
+# config folder (where game settings are stored)
+config
