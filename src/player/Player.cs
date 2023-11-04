@@ -9,9 +9,12 @@ class Player
 	public float pitch = 0;
 	public float yaw = 0;
 
-	// Speed stuff
+	// Movement stuff
 	private const float walkSpeed = 10f;
 	private const float runSpeed = 15f;
+	private bool moving = false;
+	private bool running = false;
+
 
 	// Make a new player
 	public Player()
@@ -22,7 +25,7 @@ class Player
 			position = new Vector3(Position.X, Position.Y + 1, Position.Z),
 			target = Vector3.Zero,
 			up = Vector3.UnitY,
-			fovy = Settings.Fov,
+			fovy = SettingsManager.Settings.Fov,
 			projection = CameraProjection.CAMERA_PERSPECTIVE
 		};
 	}
@@ -30,17 +33,7 @@ class Player
 	// Update
 	public void Update(float deltaTime)
 	{
-		// Movement(deltaTime);
 		Movement(deltaTime);
-
-		// Look at some random cube
-		if (Raylib.IsKeyPressed(KeyboardKey.KEY_F9))
-		{
-			Console.WriteLine("Should eb able to se cube rn🙏🙏");
-			yaw = -1.5f;
-			pitch = 0;
-			Camera.position = new Vector3(0, 1, 0);
-		}
 	}
 
 	// Move the player
@@ -48,7 +41,7 @@ class Player
 	public void Movement(float deltaTime)
 	{
 		// Camera rotation
-		Vector2 mouseDelta = Raylib.GetMouseDelta() * -Settings.Sensitivity;
+		Vector2 mouseDelta = Raylib.GetMouseDelta() * -SettingsManager.Settings.Sensitivity;
 		yaw += mouseDelta.X;
 		pitch += mouseDelta.Y;
 
@@ -72,23 +65,28 @@ class Player
 
 		// Check for if the player wants to run or walk
 		float speed = walkSpeed;
-		if (Raylib.IsKeyDown(Settings.Sprint)) speed = runSpeed;
+		running = false;
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Sprint))
+		{
+			speed = runSpeed;
+			running = true;
+		}
 
 		// Keyboard movement input
 		Vector3 newPosition = Position;
 
 		// Forwards and backwards (W, S)
-		if (Raylib.IsKeyDown(Settings.Forwards)) newPosition += direction;
-		if (Raylib.IsKeyDown(Settings.Backwards)) newPosition -= direction;
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Forwards)) newPosition += direction;
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Backwards)) newPosition -= direction;
 
 		// Left and right/strafing (A, D)
-		if (Raylib.IsKeyDown(Settings.Left)) newPosition -= right;
-		if (Raylib.IsKeyDown(Settings.Right)) newPosition += right;
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Left)) newPosition -= right;
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Right)) newPosition += right;
 
 		// Apply speed and delta time. Also remove any Y movement to stop the player from flying
 		// TODO: Reenable the Y thingy to make the player fly in a spectator mode or something
-		// TODO: Normalize to keep same speed
 		newPosition *= speed * deltaTime;
+		if (newPosition.Length() > 1f) newPosition = Vector3.Normalize(newPosition);
 		newPosition.Y = 0;
 
 		// Move and update the camera

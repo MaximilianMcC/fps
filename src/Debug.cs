@@ -15,7 +15,7 @@ public class Debug
 		public static void Update()
 		{
 			// Toggle debug mode
-			if (Raylib.IsKeyPressed(Settings.ToggleDebug)) DebugMode = !DebugMode;
+			if (Raylib.IsKeyPressed(SettingsManager.Settings.ToggleDebug)) DebugMode = !DebugMode;
 		}
 
 		public static void Render()
@@ -27,12 +27,12 @@ public class Debug
 
 
 	// FPS counter
-	// TODO: Make memory graph also
+	// TODO: Make a memory counter/graph
 	public class FPSGraph
 	{
 		// Make the window
 		//! Its prolly a bad idea to make it in here but idk it works
-		private static Window window = new Window("FPS graph", new Vector2(10, 10), new Vector2(300, 200), true);
+		private static Window window = new Window("fram per secnsd", new Vector2(10, 10), new Vector2(300, 200), true);
 
 		// TODO: Stop crazy spike at start
 		private static int[] previousFPS = new int[512];
@@ -66,7 +66,7 @@ public class Debug
 
 			// Calculate the scale factor for drawing the graph
 			float scaleX = (float)(window.Width - padding2) / (previousFPS.Length - 1);
-			float scaleY = (float)(window.BodyHeight - padding2) / Settings.MaxFps;
+			float scaleY = (float)(window.BodyHeight - padding2) / SettingsManager.Settings.MaxFps;
 
 			// Draw the graph
 			for (int i = 0; i < previousFPS.Length - 1; i++)
@@ -83,8 +83,8 @@ public class Debug
 
 				// Change color based on fps relational to max fps
 				Color color = Colors.Green;
-				if (previousFPS[i] <= Settings.MaxFps / 2) color = Colors.Orange;
-				if (previousFPS[i] <= Settings.MaxFps / 5) color = Colors.Red;
+				if (previousFPS[i] <= SettingsManager.Settings.MaxFps / 2) color = Colors.Orange;
+				if (previousFPS[i] <= SettingsManager.Settings.MaxFps / 5) color = Colors.Red;
 
 				// Draw the line/plot the current fps
 				Raylib.DrawLineEx(start, end, 2, color);
@@ -97,8 +97,6 @@ public class Debug
 			Raylib.DrawText($"FPS: {Raylib.GetFPS()}", (int)x, (int)y, 35, Color.BEIGE);
 		}
 	}
-
-
 
 	// TODO: Make resizable
 	protected class Window
@@ -191,5 +189,6 @@ public class Debug
 		public readonly static Color Purple = new Color(131, 8, 255, 255);
 		public readonly static Color Gray = new Color(156, 156, 156, 255);
 		public readonly static Color Tan = new Color(206, 145, 120, 255);
+		public readonly static Color Blue = new Color(8, 131, 255, 255);
 	}
 }

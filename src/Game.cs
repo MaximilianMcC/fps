@@ -3,7 +3,7 @@ using Raylib_cs;
 
 class Game
 {
-	// Game rending settings and stuff
+	// Game rending SettingsManager.Settings and stuff
 	// TODO: Make 4:3
 	// TODO: Mess around with resolution until get something good
 	private const int GAME_WIDTH = 1920;
@@ -19,10 +19,13 @@ class Game
 
 	public void Run()
 	{
+		// Load all of the Settings
+		SettingsManager.UpdateSettings();
+
 		// Make raylib window
 		Raylib.InitWindow(GAME_WIDTH, GAME_HEIGHT, "fps gaem");
 		Raylib.SetWindowState(ConfigFlags.FLAG_WINDOW_RESIZABLE);
-		Raylib.SetTargetFPS(Settings.MaxFps);
+		Raylib.SetTargetFPS(SettingsManager.Settings.MaxFps);
 		Raylib.SetExitKey(KeyboardKey.KEY_NULL);
 		Raylib.DisableCursor();
 
