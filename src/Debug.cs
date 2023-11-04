@@ -66,19 +66,19 @@ public class Debug
 
 			// Calculate the scale factor for drawing the graph
 			float scaleX = (float)(window.Width - padding2) / (previousFPS.Length - 1);
-			float scaleY = (float)(window.Height - padding2) / Settings.MaxFps;
+			float scaleY = (float)(window.BodyHeight - padding2) / Settings.MaxFps;
 
 			// Draw the graph
 			for (int i = 0; i < previousFPS.Length - 1; i++)
 			{
 				// Calculate the position for the start line position
 				x = window.X + (i * scaleX) + padding;
-				y = (window.BodyY + window.BodyHeight) + padding - Math.Min(previousFPS[i] * scaleY, window.BodyHeight) - padding;
+				y = window.Y + window.Height - padding - (previousFPS[i] * scaleY);
 				Vector2 start = new Vector2(x, y);
 
 				// Calculate the position for the end line position
 				x = window.X + ((i + 1) * scaleX) + padding;
-				y = (window.BodyY + window.BodyHeight) + padding - Math.Min(previousFPS[i + 1] * scaleY, window.BodyHeight) - padding;
+				y = window.Y + window.Height - padding - (previousFPS[i + 1] * scaleY);
 				Vector2 end = new Vector2(x, y);
 
 				// Change color based on fps relational to max fps
