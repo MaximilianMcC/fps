@@ -17,10 +17,6 @@ class Game
 	// Other things
 	private bool paused = false;
 
-
-	//! remode debug sstuf
-	private int fps = Settings.MaxFps;
-
 	public void Run()
 	{
 		// Make raylib window
@@ -62,17 +58,6 @@ class Game
 		Debug.Terminal.Update();
 		Debug.FPSGraph.Update();
 
-		if (Raylib.IsKeyDown(KeyboardKey.KEY_MINUS))
-		{
-			fps++;
-			Raylib.SetTargetFPS(fps);
-		}
-		if (Raylib.IsKeyDown(KeyboardKey.KEY_EQUAL))
-		{
-			fps--;
-			Raylib.SetTargetFPS(fps);
-		}
-
 		// Check for if the game is paused
 		if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE)) 
 		{
@@ -101,13 +86,13 @@ class Game
 		Raylib.DrawModel(monitor, new Vector3(5, 0, 3), 1f, Color.WHITE);
 		Raylib.DrawCube(new Vector3(-5, 0, 0), 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
 		Raylib.DrawCubeWires(new Vector3(-5, 0, 0), 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
-
 		
 
 		// Draw 2D stuff
 		Raylib.EndMode3D();
 		Debug.Terminal.Render();
 		Debug.FPSGraph.Render();
+		HUD.Render();
 
 		// Stop drawing everything
 		Raylib.EndDrawing();

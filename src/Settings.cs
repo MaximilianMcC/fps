@@ -20,4 +20,11 @@ class Settings
 	// Debug/other stuff
 	public static KeyboardKey ToggleDebug =  KeyboardKey.KEY_GRAVE;
 
+	// Crosshair settings
+	// TODO: Maybe chuck in a separate struct or something
+	public static Color CrosshairColor = new Color(255, 255, 255, 128);
+	public static int CrosshairSize = 5;
+	public static bool CrosshairCentreDot = true;
+	public static int CrosshairLength = 4;
+	public static int CrosshairSpacing = 2;
 }
