@@ -97,6 +97,8 @@ class Game
 		Debug.FPSGraph.Render();
 		HUD.Render();
 
+		Raylib.DrawText(player.ToString(), 30, 450, 30, Color.WHITE);
+
 		// Stop drawing everything
 		Raylib.EndDrawing();
 	}
