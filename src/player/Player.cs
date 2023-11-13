@@ -3,17 +3,21 @@ using Raylib_cs;
 
 class Player
 {
-	// public Camera3D Camera;
+	// Camera and movement stuff
 	public Camera3D Camera;
-	public Vector3 Position = Vector3.Zero;
-	public float pitch = 0;
-	public float yaw = 0;
+	public Vector3 Position { get; set; } = Vector3.Zero;
+	public float Pitch { get; set; } = 0;
+	public float Yaw { get; set; } = 0;
+
+	// Physics stuff
+	public float Mass { get; private set; } = 62; //? kilograms
+	public Vector3 Velocity { get; set; } = Vector3.Zero;
 
 	// Movement stuff
-	private const float walkSpeed = 10f;
-	private const float runSpeed = 15f;
-	private bool moving = false;
-	private bool running = false;
+	private float walkForce;
+	private float runForce;
+	Vector3 direction;
+	Vector3 right;
 
 
 	// Make a new player
@@ -28,6 +32,11 @@ class Player
 			fovy = SettingsManager.Settings.Fov,
 			projection = CameraProjection.CAMERA_PERSPECTIVE
 		};
+
+		// Set the movement forces so that they are proportional to body weight
+		//! I asked Clyde for average horizontal force applied when walking and they said 0.5 - 1.5
+		walkForce = (float)(Mass * 0.4);
+		runForce = (float)(Mass * 0.5);
 	}
 
 	// Update
@@ -37,63 +46,86 @@ class Player
 	}
 
 	// Move the player
-	// TODO: Maybe split mouse and keyboard stuff into two different methods for improved readability
 	public void Movement(float deltaTime)
+	{
+		MouseMovement();
+		KeyboardMovement();
+	}
+
+	// Looking around and stuff
+	private void MouseMovement()
 	{
 		// Camera rotation
 		Vector2 mouseDelta = Raylib.GetMouseDelta() * -SettingsManager.Settings.Sensitivity;
-		yaw += mouseDelta.X;
-		pitch += mouseDelta.Y;
+		Yaw += mouseDelta.X;
+		Pitch += mouseDelta.Y;
 
 		// Stop player from snapping their neck
-		if (pitch > 80.0f)  pitch = 80.0f;
-		else if (pitch < -80.0f) pitch = -80.0f;
+		if (Pitch > 80.0f)  Pitch = 80.0f;
+		else if (Pitch < -80.0f) Pitch = -80.0f;
 
 		// Calculate target from pitch and yaw
-		Vector3 direction = new Vector3(
-			(float)(Math.Cos(pitch) * Math.Sin(yaw)),
-			(float)Math.Sin(pitch),
-			(float)(Math.Cos(pitch) * Math.Cos(yaw))
+		direction = new Vector3(
+			(float)(Math.Cos(Pitch) * Math.Sin(Yaw)),
+			(float)Math.Sin(Pitch),
+			(float)(Math.Cos(Pitch) * Math.Cos(Yaw))
 		);
 
 		// Calculate right vector for moving in the direction that the player is looking
-		Vector3 right = new Vector3(
-			(float)Math.Sin(yaw - Math.PI / 2.0f),
+		right = new Vector3(
+			(float)Math.Sin(Yaw - Math.PI / 2.0f),
 			0,
-			(float)Math.Cos(yaw - Math.PI / 2.0f)
+			(float)Math.Cos(Yaw - Math.PI / 2.0f)
 		);
-
-		// Check for if the player wants to run or walk
-		float speed = walkSpeed;
-		running = false;
-		if (Raylib.IsKeyDown(SettingsManager.Settings.Sprint))
-		{
-			speed = runSpeed;
-			running = true;
-		}
-
-		// Keyboard movement input
-		Vector3 newPosition = Position;
-
-		// Forwards and backwards (W, S)
-		if (Raylib.IsKeyDown(SettingsManager.Settings.Forwards)) newPosition += direction;
-		if (Raylib.IsKeyDown(SettingsManager.Settings.Backwards)) newPosition -= direction;
-
-		// Left and right/strafing (A, D)
-		if (Raylib.IsKeyDown(SettingsManager.Settings.Left)) newPosition -= right;
-		if (Raylib.IsKeyDown(SettingsManager.Settings.Right)) newPosition += right;
-
-		// Apply speed and delta time. Also remove any Y movement to stop the player from flying
-		// TODO: Reenable the Y thingy to make the player fly in a spectator mode or something
-		newPosition *= speed * deltaTime;
-		if (newPosition.Length() > 1f) newPosition = Vector3.Normalize(newPosition);
-		newPosition.Y = 0;
-
-		// Move and update the camera
-		Camera.position += newPosition;
-		Camera.target = Camera.position + direction;
 	}
 
+private void KeyboardMovement()
+{
+    // Check for if the player wants to run or walk
+    float moveForce = walkForce;
+    if (Raylib.IsKeyDown(SettingsManager.Settings.Sprint))
+    {
+        moveForce = runForce;
+    }
+
+    Vector3 force = Vector3.Zero;
+
+    // Forwards and backwards keyboard input (W, S)
+    if (Raylib.IsKeyDown(SettingsManager.Settings.Forwards)) force += direction;
+    if (Raylib.IsKeyDown(SettingsManager.Settings.Backwards)) force -= direction;
+
+    // Left and right/strafing keyboard input (A, D)
+    if (Raylib.IsKeyDown(SettingsManager.Settings.Left)) force -= right;
+    if (Raylib.IsKeyDown(SettingsManager.Settings.Right)) force += right;
+
+    // Add the "speed" to the force applied
+    force *= moveForce;
+
+    // Apply the force to the velocity
+    Velocity += force / Mass;
+
+    // Apply friction to stop the player sliding around
+    float frictionCoefficient = 0.1f;
+    Vector3 friction = -frictionCoefficient * Velocity;
+    Velocity += friction;
+    if (Velocity.LengthSquared() <= 0.1f) Velocity = Vector3.Zero;
+
+    //! Remove Y velocity
+    // TODO: Remove this when adding gravity. If adding a noclip/spectator mode then remove everything related to Y, and the player will fly in direction they looking
+    Velocity = new Vector3(Velocity.X, 0, Velocity.Z);
+
+    // Update the players position based on the velocity
+    Vector3 newPosition = Position;
+    if (Velocity != Vector3.Zero)
+    {
+        newPosition += Velocity * Raylib.GetFrameTime();
+        Position = newPosition;
+
+        // Move and update the camera
+        Camera.position += newPosition;
+    }
+	Camera.target = Camera.position + direction;
+}
 
 
 
