@@ -13,6 +13,7 @@ class Game
 	// TODO: Put in resource manager
 	Player player;
 	Model monitor;
+	Model wall;
 
 	// Other things
 	private bool paused = false;
@@ -49,6 +50,13 @@ class Game
 		Texture2D texture = Raylib.LoadTexture("./assets/monitor.png");
 		Raylib.SetMaterialTexture(ref model, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref texture);
 		monitor = model;
+
+		// Load wall model
+		// TODO: Make asset/resource manager
+		//! Don't hardcode
+		wall = Raylib.LoadModel("./assets/wall.obj");
+		Texture2D wallTexture = Raylib.LoadTexture("./assets/dev-texture-128.png");
+		Raylib.SetMaterialTexture(ref wall, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref wallTexture);
 	}
 
 	private void Update()
@@ -86,10 +94,24 @@ class Game
 		Raylib.ClearBackground(Color.MAGENTA);
 
 
-		Raylib.DrawModel(monitor, new Vector3(5, 0, 3), 1f, Color.WHITE);
-		Raylib.DrawCube(new Vector3(-5, 0, 0), 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
-		Raylib.DrawCubeWires(new Vector3(-5, 0, 0), 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
+		// Raylib.DrawModel(monitor, new Vector3(5, 0, 3), 1f, Color.WHITE);
+		// Raylib.DrawCube(new Vector3(-5, 0, 0), 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
+		// Raylib.DrawCubeWires(new Vector3(-5, 0, 0), 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
 		
+		Raylib.DrawGrid(10, 1);
+		
+		// Draw crappy map thing
+		//! Bad to hardcode map
+		// TODO: Remove and use map editor
+		Raylib.DrawModelEx(wall, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), Color.WHITE);
+		Raylib.DrawModelEx(wall, new Vector3(0, 1, 0), new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), Color.WHITE);
+
+		Raylib.DrawModelEx(wall, new Vector3(1, 0, 0), new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), Color.WHITE);
+		Raylib.DrawModelEx(wall, new Vector3(1, 1, 0), new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), Color.WHITE);
+
+		Raylib.DrawModelEx(wall, new Vector3(2, 0, 0), new Vector3(0, -90, 0), -90, new Vector3(1, 1, 1), Color.BLUE);
+		Raylib.DrawModelEx(wall, new Vector3(2, 1, 0), new Vector3(0, -90, 0), -90, new Vector3(1, 1, 1), Color.BLUE);
+
 
 		// Draw 2D stuff
 		Raylib.EndMode3D();
