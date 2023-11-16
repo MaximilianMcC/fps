@@ -12,7 +12,7 @@ public class Settings
 	public KeyboardKey Jump { get; protected set; } = KeyboardKey.KEY_SPACE;
 	
 	// Mouse movement stuff
-	public float Sensitivity { get; protected set; } = 0.003f;
+	public float Sensitivity { get; protected set; } = 150f; //! If goes < 0 movement is reversed. 0 is no movement
 	public float Fov { get; protected set; } = 60f;
 
 	// Graphics/video stuff

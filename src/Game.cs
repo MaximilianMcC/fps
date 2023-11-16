@@ -30,6 +30,8 @@ class Game
 		Raylib.SetExitKey(KeyboardKey.KEY_NULL);
 		Raylib.DisableCursor();
 
+		//! F12 takes a screenshot and idk if there is a way to rebind
+
 		// Game
 		Start();
 		while (!Raylib.WindowShouldClose())
@@ -119,7 +121,7 @@ class Game
 		Debug.FPSGraph.Render();
 		HUD.Render();
 
-		Raylib.DrawText(player.ToString(), 30, 450, 30, Color.WHITE);
+		if (Debug.DebugMode) Raylib.DrawText(player.ToString(), 30, 450, 30, Color.WHITE);
 
 		// Stop drawing everything
 		Raylib.EndDrawing();
