@@ -24,6 +24,7 @@ class Player
 	private float walkForce;
 	private float runForce;
 	private Vector3 forward;
+	private Vector3 forwardDirection;
 	private Vector3 right;
 
 	// Make a new player
@@ -54,7 +55,7 @@ class Player
 
 		// Move and update the camera
 		Camera.position = new Vector3(Position.X, Position.Y + eyeYPosition, Position.Z);
-		Camera.target = Camera.position + forward;
+		Camera.target = Camera.position + forwardDirection;
 
 		// Set the speed
 		// TODO: Don't do every frame because getting length is expensive
@@ -62,31 +63,34 @@ class Player
 	}
 
 	// Looking around and stuff
-private void MouseMovement()
-{
-    // Get the mouse movement in degrees
-    Vector2 mouseDelta = Raylib.GetMouseDelta() * SettingsManager.Settings.Sensitivity;
-    float mouseX = mouseDelta.X / Raylib.GetScreenWidth();
-    float mouseY = mouseDelta.Y / Raylib.GetScreenHeight();
+	private void MouseMovement()
+	{
+		// Get the mouse movement in degrees
+		Vector2 mouseDelta = Raylib.GetMouseDelta() * SettingsManager.Settings.Sensitivity;
+		float mouseX = mouseDelta.X / Raylib.GetScreenWidth();
+		float mouseY = mouseDelta.Y / Raylib.GetScreenHeight();
 
-    // Update the pitch and yaw values
-    Pitch -= mouseY;
-    Yaw -= mouseX;
+		// Update the pitch and yaw values
+		Pitch -= mouseY;
+		Yaw -= mouseX;
 
-    // Clamp the pitch from -90 to 90 in degrees
-    // and keep yaw between 0 and 360 deg
-    Pitch = Math.Clamp(Pitch, -90f, 90f);
-    Yaw %= 360f;
+		// Clamp the pitch from -90 to 90 in degrees
+		// and keep yaw between 0 and 360 deg
+		Pitch = Math.Clamp(Pitch, -90f, 90f);
+		Yaw %= 360f;
 
-    // Convert the pitch and roll to a quaternion because
-    // it's easier to work with
-    Quaternion rotation = Quaternion.CreateFromYawPitchRoll(Utils.DegreesToRadians(Yaw), Utils.DegreesToRadians(Pitch), 0);
+		// Convert into a quaternion to make working with rotations easier
+		Quaternion rotation = Quaternion.CreateFromYawPitchRoll(Utils.DegreesToRadians(Yaw), Utils.DegreesToRadians(Pitch), 0);
+		Quaternion rotationNoPitch = Quaternion.CreateFromYawPitchRoll(Utils.DegreesToRadians(Yaw), 0, 0);
 
-    // Calculate target for moving forwards and right
-	// If negative it becomes backwards and left
-    forward = Vector3.Transform(new Vector3(0, 0, -1), rotation);
-    right = Vector3.Transform(new Vector3(1, 0, 0), rotation);
-}
+		// Calculate target for moving forwards and right
+		// No pitch is used to stop the player from speeding up/slowing down depending on pitch
+		forward = Vector3.Transform(new Vector3(0, 0, -1), rotationNoPitch);
+		right = Vector3.Transform(new Vector3(1, 0, 0), rotationNoPitch);
+
+		// Assign the direction Forward for controlling camera rotation
+		forwardDirection = Vector3.Transform(new Vector3(0, 0, -1), rotation);
+	}
 
 
 	private void KeyboardMovement()
