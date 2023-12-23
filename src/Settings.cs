@@ -8,8 +8,11 @@ public class Settings
 	public KeyboardKey Backwards { get; protected set; } = KeyboardKey.KEY_S;
 	public KeyboardKey Left { get; protected set; } = KeyboardKey.KEY_A;
 	public KeyboardKey Right { get; protected set; } = KeyboardKey.KEY_D;
-	public KeyboardKey Sprint { get; protected set; } = KeyboardKey.KEY_LEFT_CONTROL;
 	public KeyboardKey Jump { get; protected set; } = KeyboardKey.KEY_SPACE;
+
+	// 'special' movement stuff
+	public KeyboardKey Sprint { get; protected set; } = KeyboardKey.KEY_LEFT_CONTROL;
+	public KeyboardKey Crouch { get; protected set; } = KeyboardKey.KEY_LEFT_SHIFT;
 	
 	// Mouse movement stuff
 	public float Sensitivity { get; protected set; } = 150f; //! If goes < 0 movement is reversed. 0 is no movement

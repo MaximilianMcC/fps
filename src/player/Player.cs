@@ -10,8 +10,11 @@ class Player
 	public float Yaw { get; set; } = 0;
 
 	// Dimensions and stuff
-	private float height = 1.75f; //? Meter
-	private float eyeYPosition = 1.60f;
+	public float Height { get; private set; }
+	public bool Crouching { get; set; } = false;
+	private float standingHeight = 1.75f; //? Meter
+	private float crouchingHeight = 1f; //? Meter
+	private float eyeYFromTopOfHead = 0.15f; //? Meter
 
 	// Physics stuff
 	// TODO: Figure out why the player sinks into the ground (something to do with friction i think)
@@ -21,6 +24,7 @@ class Player
 
 	// Movement stuff
 	public float Speed { get; private set; }
+	private float crouchForce;
 	private float walkForce;
 	private float runForce;
 	private Vector3 forward;
@@ -30,10 +34,13 @@ class Player
 	// Make a new player
 	public Player()
 	{
+		// Set the player height
+		Height = standingHeight;
+
 		// Create the raylib camera
 		Camera = new Camera3D
 		{
-			position = new Vector3(Position.X, Position.Y + eyeYPosition, Position.Z),
+			position = new Vector3(Position.X, Position.Y + (Height - eyeYFromTopOfHead), Position.Z),
 			target = Vector3.Zero,
 			up = Vector3.UnitY,
 			fovy = SettingsManager.Settings.Fov,
@@ -42,8 +49,9 @@ class Player
 
 		// Set the movement forces so that they are proportional to body weight
 		//! I asked Clyde for average horizontal force applied when walking and they said 0.5 - 1.5
-		walkForce = (float)(Mass * 1.2);
-		runForce = (float)(Mass * 1.5);
+		walkForce = Mass * 1.2f;
+		runForce = Mass * 1.5f;
+		crouchForce = Mass * 0.4f;
 	}
 
 	// Update
@@ -54,7 +62,7 @@ class Player
 		KeyboardMovement();
 
 		// Move and update the camera
-		Camera.position = new Vector3(Position.X, Position.Y + eyeYPosition, Position.Z);
+		Camera.position = new Vector3(Position.X, Position.Y + (Height - eyeYFromTopOfHead), Position.Z);
 		Camera.target = Camera.position + forwardDirection;
 
 		// Set the speed
@@ -96,12 +104,25 @@ class Player
 
 	private void KeyboardMovement()
 	{
+		// Check for if the player wants to crouch
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Crouch))
+		{
+			Crouching = true;
+			Height = crouchingHeight;
+		}
+		else
+		{
+			Crouching = false;
+			Height = standingHeight;
+		}
+
 		// Check for if the player wants to run or walk
 		float moveForce = walkForce;
 		if (Raylib.IsKeyDown(SettingsManager.Settings.Sprint))
 		{
 			moveForce = runForce;
 		}
+		else if (Crouching) moveForce = crouchForce;
 
 		Vector3 force = Vector3.Zero;
 
@@ -145,6 +166,7 @@ class Player
 			$"\nVelocity: {Velocity}" +
 			$"\nYaw: {Yaw}\tPitch: {Pitch}" +
 			$"\nMass: {Mass} meters (fat)" +
+			$"\nCrouching: {Crouching}" +
 			$"\n\nPosition: {Position}" + 
 			$"\nCamera Position: {Camera.position}";
 	}
