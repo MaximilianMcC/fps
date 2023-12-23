@@ -12,8 +12,6 @@ class Game
 	// Things
 	// TODO: Put in resource manager
 	Player player;
-	Model monitor;
-	Model wall;
 
 	// Other things
 	private bool paused = false;
@@ -39,6 +37,10 @@ class Game
 			Update();
 			Render();
 		}
+		CleanUp();
+
+		// Close the window when done
+		Raylib.CloseWindow();
 	}
 
 
@@ -47,18 +49,10 @@ class Game
 	{
 		player = new Player();
 
-		// Load a model and texture
-		Model model = Raylib.LoadModel("./assets/monitor.obj");
-		Texture2D texture = Raylib.LoadTexture("./assets/monitor.png");
-		Raylib.SetMaterialTexture(ref model, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref texture);
-		monitor = model;
 
-		// Load wall model
-		// TODO: Make asset/resource manager
-		//! Don't hardcode
-		wall = Raylib.LoadModel("./assets/wall.obj");
-		Texture2D wallTexture = Raylib.LoadTexture("./assets/dev-texture-128.png");
-		Raylib.SetMaterialTexture(ref wall, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref wallTexture);
+		// Do some things
+		ThingManager.Things.Add(new Thing("CRT Monitor", Vector3.Zero, Vector3.Zero, "./assets/crt.obj", new string[] { "./assets/crt.png" }));
+		ThingManager.StartThings();
 	}
 
 	private void Update()
@@ -85,6 +79,8 @@ class Game
 
 		// Update stuff that can be paused
 		player.Update(deltaTime);
+		ThingManager.UpdateThings();
+
 
 
 
@@ -114,26 +110,9 @@ class Game
 		Raylib.BeginDrawing();
 		Raylib.BeginMode3D(player.Camera);
 		Raylib.ClearBackground(Color.MAGENTA);
-
-
-		// Raylib.DrawModel(monitor, new Vector3(5, 0, 3), 1f, Color.WHITE);
-		// Raylib.DrawCube(new Vector3(-5, 0, 0), 1.0f, 1.0f, 1.0f, Color.RED); // Draw a red cube at the center
-		// Raylib.DrawCubeWires(new Vector3(-5, 0, 0), 1.1f, 1.1f, 1.1f, Color.DARKGREEN); // Draw a red cube at the center
 		
 		Raylib.DrawGrid(10, 1);
-		
-		// Draw crappy map thing
-		//! Bad to hardcode map
-		// TODO: Remove and use map editor
-		Raylib.DrawModelEx(wall, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), Color.WHITE);
-		Raylib.DrawModelEx(wall, new Vector3(0, 1, 0), new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), Color.WHITE);
-
-		Raylib.DrawModelEx(wall, new Vector3(1, 0, 0), new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), Color.WHITE);
-		Raylib.DrawModelEx(wall, new Vector3(1, 1, 0), new Vector3(0, 0, 0), 0, new Vector3(1, 1, 1), Color.WHITE);
-
-		Raylib.DrawModelEx(wall, new Vector3(2, 0, 0), new Vector3(0, -90, 0), -90, new Vector3(1, 1, 1), Color.BLUE);
-		Raylib.DrawModelEx(wall, new Vector3(2, 1, 0), new Vector3(0, -90, 0), -90, new Vector3(1, 1, 1), Color.BLUE);
-
+		ThingManager.RenderThings();
 
 		// Draw 2D stuff
 		Raylib.EndMode3D();
@@ -147,5 +126,9 @@ class Game
 		Raylib.EndDrawing();
 	}
 
-
+	// When the game is ended/closed/quit
+	private void CleanUp()
+	{
+		ThingManager.KillThings();
+	}
 }

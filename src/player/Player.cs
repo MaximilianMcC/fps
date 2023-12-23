@@ -75,7 +75,8 @@ class Player
 		Yaw -= mouseX;
 
 		// Clamp the pitch from -90 to 90 in degrees
-		// and keep yaw between 0 and 360 deg
+		// and keep yaw between 0 and 360 degrees
+		// TODO: Remove gimbal lock
 		Pitch = Math.Clamp(Pitch, -90f, 90f);
 		Yaw %= 360f;
 
