@@ -116,6 +116,15 @@ class Game
 
 		// Draw 2D stuff
 		Raylib.EndMode3D();
+
+		// If we're paused then darken everything by putting
+		// a semi-transparent rectangle on the screen
+		if (paused)
+		{
+			// TODO: Don't make a new color every frame
+			Raylib.DrawRectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight(), new Color(32, 32, 32, 128));
+		}
+
 		Debug.Terminal.Render();
 		Debug.FPSGraph.Render();
 		HUD.Render();
