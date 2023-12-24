@@ -19,7 +19,7 @@ class Game
 	public void Run()
 	{
 		// Load all of the Settings
-		SettingsManager.UpdateSettings();
+		SettingsManager.Load();
 
 		// Make raylib window
 		Raylib.InitWindow(GAME_WIDTH, GAME_HEIGHT, "fps gaem");
