@@ -9,6 +9,9 @@ class Game
 	private const int GAME_WIDTH = 1920;
 	private const int GAME_HEIGHT = 1080;
 
+	// Render Texture
+	private RenderTexture2D cameraRenderTexture;
+
 	// Things
 	// TODO: Put in resource manager
 	Player player;
@@ -26,9 +29,10 @@ class Game
 		Raylib.SetWindowState(ConfigFlags.FLAG_WINDOW_RESIZABLE);
 		Raylib.SetTargetFPS(SettingsManager.Settings.MaxFps);
 		Raylib.SetExitKey(KeyboardKey.KEY_NULL);
-		Raylib.DisableCursor();
+		Raylib.DisableCursor();		
 
-		//! F12 takes a screenshot and idk if there is a way to rebind
+		// Setup the render texture
+		cameraRenderTexture = Raylib.LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT);
 
 		// Game
 		Start();
@@ -50,17 +54,13 @@ class Game
 		player = new Player();
 
 
-		// Do some things
+		// Add some things
 		ThingManager.Things.Add(new Thing("CRT Monitor", Vector3.Zero, Vector3.Zero, "./assets/crt.obj", new string[] { "./assets/crt.png" }));
 		ThingManager.StartThings();
 	}
 
 	private void Update()
 	{
-		// Get delta time
-		float deltaTime = Raylib.GetFrameTime();
-
-
 		// Update stuff that can't be paused
 		Debug.Terminal.Update();
 		Debug.FPSGraph.Update();
@@ -78,7 +78,7 @@ class Game
 		if (paused) return;
 
 		// Update stuff that can be paused
-		player.Update(deltaTime);
+		player.Update();
 		ThingManager.UpdateThings();
 
 
@@ -106,16 +106,27 @@ class Game
 	// TODO: Render in 4:3 squished
 	private void Render()
 	{
-		// Draw 3D stuff
-		Raylib.BeginDrawing();
+		// Draw 3D camera output to the render texture
+		Raylib.BeginTextureMode(cameraRenderTexture);
 		Raylib.BeginMode3D(player.Camera);
 		Raylib.ClearBackground(Color.MAGENTA);
 		
+		// Draw 3D stuff
 		Raylib.DrawGrid(10, 1);
 		ThingManager.RenderThings();
 
-		// Draw 2D stuff
+		// Finish drawing 3D stuff to render texture
 		Raylib.EndMode3D();
+		Raylib.EndTextureMode();
+
+		// Draw 2D stuff
+		Raylib.BeginDrawing();
+		Raylib.ClearBackground(Color.GREEN);
+
+		// Draw the camera output
+		Rectangle source = new Rectangle(0f, 0f, cameraRenderTexture.texture.width, -cameraRenderTexture.texture.height);
+		Rectangle destination = new Rectangle(0f, 0f, Raylib.GetScreenWidth(), Raylib.GetScreenHeight()); //TODO: Make dynamic
+		Raylib.DrawTexturePro(cameraRenderTexture.texture, source, destination, Vector2.Zero, 0f, Color.WHITE);
 
 		// If we're paused then darken everything by putting
 		// a semi-transparent rectangle on the screen

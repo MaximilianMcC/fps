@@ -55,7 +55,7 @@ class Player
 	}
 
 	// Update
-	public void Update(float deltaTime)
+	public void Update()
 	{
 		// Move the player
 		MouseMovement();
