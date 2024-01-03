@@ -5,11 +5,10 @@ class Terminal : Thing
 {
 	private Model terminalModel;
 	private Model screenModel;
-	private Model debugModel;
 	private Texture2D terminalTexture;
-	private Texture2D debugTexture;
 
 	private RenderTexture2D screen;
+	private RenderTexture2D displayScreen; //? used to flip the image
 	private float screenWidth = 400;
 	private float screenHeight = 300;
 	private float count = 0;
@@ -19,15 +18,13 @@ class Terminal : Thing
 		// Load in all of the required assets
 		terminalModel = Raylib.LoadModel("./assets/terminal.obj");
 		terminalTexture = Raylib.LoadTexture("./assets/terminal.png");
-		Raylib.SetMaterialTexture(ref terminalModel, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref terminalTexture);
 		screenModel = Raylib.LoadModel("./assets/terminal-screen.obj");
-		debugModel = Raylib.LoadModel("./assets/wall.obj");
 
-		//! debug
-		debugTexture = Raylib.LoadTexture("./assets/dev-texture-128.png");
+		Raylib.SetMaterialTexture(ref terminalModel, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref terminalTexture);
 
-		// Make the render texture for the screen
+		// Make the render textures for the screen
 		screen = Raylib.LoadRenderTexture((int)screenWidth, (int)screenHeight);
+		displayScreen = Raylib.LoadRenderTexture((int)screenWidth, (int)screenHeight);
 	}
 
 	public override void Update()
@@ -40,11 +37,8 @@ class Terminal : Thing
 	public override void Render()
 	{
 		// Draw everything in the game world thingy
-		// Raylib.DrawModelEx(terminalModel, Position, Rotation, 0f, Scale, Color.WHITE);
-		// TODO: Don't use -Scale.Y
-		//! hack. Do properly
+		Raylib.DrawModelEx(terminalModel, Position, Rotation, 0f, Scale, Color.WHITE);
 		Raylib.DrawModelEx(screenModel, Position, Rotation, 0f, Scale, Color.WHITE);
-		Raylib.DrawModelEx(debugModel, Position, Rotation, 0f, Scale, Color.WHITE);
 
 		// Draw everything to the screen
 		Raylib.BeginTextureMode(screen);
@@ -52,31 +46,25 @@ class Terminal : Thing
 		DrawScreen();
 		Raylib.EndTextureMode();
 
-		// Flip the render texture on the Y
-		//? This is because openGl doesn't have 0,0 at top-left (kys)
-		Texture2D screenTexture = screen.texture;
-		Image screenImage = Raylib.LoadImageFromTexture(screenTexture);
-		Raylib.ImageFlipVertical(ref screenImage);
-
-		screenTexture = Raylib.LoadTextureFromImage(screenImage);
-		Raylib.UnloadImage(screenImage);
-		
+		// Draw everything onto the display screen so that it can be rendered not upside-down
+		//? This is because OpenGL doesn't have 0,0 at top-left (kys)
+		Raylib.BeginTextureMode(displayScreen);
+		Raylib.ClearBackground(Color.BLUE);
+		Raylib.DrawTexture(screen.texture, 0, 0, Color.WHITE);
+		Raylib.EndTextureMode();
 
 		// Update the screen with the render texture
-		Raylib.SetMaterialTexture(ref screenModel, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref screenTexture);
-		Raylib.SetMaterialTexture(ref debugModel, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref screen.texture);
-
-		//! do rn because this is extremely bad for performance
-		// TODO: Unload screenTexture
+		Raylib.SetMaterialTexture(ref screenModel, 0, MaterialMapIndex.MATERIAL_MAP_ALBEDO, ref displayScreen.texture);
 	}
 
 	public override void Cleanup()
 	{
 		Raylib.UnloadModel(terminalModel);
 		Raylib.UnloadTexture(terminalTexture);
-
 		Raylib.UnloadModel(screenModel);
+
 		Raylib.UnloadRenderTexture(screen);
+		Raylib.UnloadRenderTexture(displayScreen);
 	}
 
 
