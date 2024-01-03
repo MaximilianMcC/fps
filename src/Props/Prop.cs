@@ -1,7 +1,7 @@
 using System.Numerics;
 using Raylib_cs;
 
-class Thing
+class Prop
 {
 
 	// General stuff
@@ -16,8 +16,8 @@ class Thing
 	public Model Model { get; set; }
 	private Texture2D[] textures;
 
-	// Make a new thing
-	public Thing(string name, Vector3 position, Vector3 rotation, string modelPath, params string[] texturePaths)
+	// Make a new prop
+	public Prop(string name, Vector3 position, Vector3 rotation, string modelPath, params string[] texturePaths)
 	{
 		// Assign basic values
 		Name = name;

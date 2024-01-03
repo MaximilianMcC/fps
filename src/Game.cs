@@ -14,7 +14,7 @@ class Game
 
 	// Things
 	// TODO: Put in resource manager
-	Player player;
+	private Player player;
 
 	// Other things
 	private bool paused = false;
@@ -53,10 +53,9 @@ class Game
 	{
 		player = new Player();
 
-
 		// Add some things
-		ThingManager.Things.Add(new Thing("CRT Monitor", Vector3.Zero, Vector3.Zero, "./assets/crt.obj", new string[] { "./assets/crt.png" }));
-		ThingManager.StartThings();
+		// ThingManager.Things.Add(new Thing("CRT Monitor", Vector3.Zero, Vector3.Zero, "./assets/crt.obj", new string[] { "./assets/crt.png" }));
+		PropManager.StartThings();
 	}
 
 	private void Update()
@@ -79,11 +78,7 @@ class Game
 
 		// Update stuff that can be paused
 		player.Update();
-		ThingManager.UpdateThings();
-
-
-
-
+		PropManager.UpdateThings();
 
 		// TODO: Put somewhere else
 		// Check for if they want to use full screen
@@ -113,7 +108,7 @@ class Game
 		
 		// Draw 3D stuff
 		Raylib.DrawGrid(10, 1);
-		ThingManager.RenderThings();
+		PropManager.RenderThings();
 
 		// Finish drawing 3D stuff to render texture
 		Raylib.EndMode3D();
@@ -149,6 +144,6 @@ class Game
 	// When the game is ended/closed/quit
 	private void CleanUp()
 	{
-		ThingManager.KillThings();
+		PropManager.KillThings();
 	}
 }
