@@ -118,7 +118,7 @@ class Player
 
 		// Check for if the player wants to run or walk
 		float moveForce = walkForce;
-		if (Raylib.IsKeyDown(SettingsManager.Settings.Sprint))
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Sprint) && !Crouching)
 		{
 			moveForce = runForce;
 		}
