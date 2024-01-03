@@ -61,6 +61,7 @@ class Game
 		PropManager.StartThings();
 
 		terminal = new Terminal();
+		terminal.Start();
 	}
 
 	private void Update()
