@@ -12,6 +12,9 @@ class Game
 	// Render Texture
 	private RenderTexture2D cameraRenderTexture;
 
+	//! debug
+	private Terminal terminal;
+
 	// Things
 	// TODO: Put in resource manager
 	private Player player;
@@ -56,6 +59,8 @@ class Game
 		// Add some things
 		// ThingManager.Things.Add(new Thing("CRT Monitor", Vector3.Zero, Vector3.Zero, "./assets/crt.obj", new string[] { "./assets/crt.png" }));
 		PropManager.StartThings();
+
+		terminal = new Terminal();
 	}
 
 	private void Update()
@@ -79,6 +84,8 @@ class Game
 		// Update stuff that can be paused
 		player.Update();
 		PropManager.UpdateThings();
+
+		terminal.Update();
 
 		// TODO: Put somewhere else
 		// Check for if they want to use full screen
@@ -109,6 +116,8 @@ class Game
 		// Draw 3D stuff
 		Raylib.DrawGrid(10, 1);
 		PropManager.RenderThings();
+
+		terminal.Render();
 
 		// Finish drawing 3D stuff to render texture
 		Raylib.EndMode3D();
@@ -145,5 +154,6 @@ class Game
 	private void CleanUp()
 	{
 		PropManager.KillThings();
+		terminal.Cleanup();
 	}
 }

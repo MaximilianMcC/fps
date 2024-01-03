@@ -127,6 +127,7 @@ class Player
 		Vector3 force = Vector3.Zero;
 
 		// Forwards and backwards keyboard input (W, S)
+		// TODO: Make walking backwards slower
 		if (Raylib.IsKeyDown(SettingsManager.Settings.Forwards)) force += forward;
 		if (Raylib.IsKeyDown(SettingsManager.Settings.Backwards)) force -= forward;
 
