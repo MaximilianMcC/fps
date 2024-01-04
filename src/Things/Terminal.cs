@@ -83,6 +83,54 @@ class Terminal : Thing
 			caretIndex = 0;
 			keyPressed = true;
 		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE))
+		{
+			// Decrease the caret index and remove the character at the index
+			if (caretIndex > 0)
+			{
+				caretIndex--;
+				input = input.Remove(caretIndex, 1);
+			}
+
+			keyPressed = true;
+		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_DELETE))
+		{
+			// Remove the character before the caret
+			if (caretIndex < input.Length) input = input.Remove(caretIndex, 1);
+			
+			keyPressed = true;
+		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_LEFT))
+		{
+			// Move the caret backwards to the left
+			caretIndex--;
+			if (caretIndex < 0) caretIndex = 0;
+
+			keyPressed = true;
+		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_RIGHT))
+		{
+		// Move the caret forwards to the right
+			caretIndex++;
+			if (caretIndex > input.Length) caretIndex = input.Length;
+
+			keyPressed = true;
+		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_END))
+		{
+			// Go to the end of the input
+			caretIndex = input.Length;
+
+			keyPressed = true;
+		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_HOME))
+		{
+			// Go to the beginning of the input
+			caretIndex = 0;
+
+			keyPressed = true;
+		}
 		else
 		{
 			// Get the normal key stuff
@@ -90,14 +138,17 @@ class Terminal : Thing
 			int keyboardInput = Raylib.GetCharPressed();
 			if (keyboardInput == 0) return;
 
-			// Add the input to the input if its a normal key
+			// Add the input to the input at the caret position
 			string newInput = char.ConvertFromUtf32(keyboardInput);
-			input += newInput;
+			input = input.Insert(caretIndex, newInput);
+
+			// Update key stuff
 			caretIndex++;
 			keyPressed = true;
 		}
 		
 		// Play a random keyboard sound when a key is pressed
+		// TODO: Make keyboard model that moves when press keys. Each individual key doesn't have to move, but maybe it can just go down a bit or something
 		if (keyPressed)
 		{
 			// Get a random sound
@@ -189,25 +240,49 @@ class Terminal : Thing
 		// TODO: Toggle for box-shape and line-shape caret for if people don't know how to use box caret (noob)
 		//! Will break if font isn't monospace
 		// TODO: Invert color where caret is
+		//! just doing caret for now because its easier (easy)
+
+
+
+
+		//! debug
+		Raylib.DrawText(caretIndex.ToString(), 0, 0, 30, Color.BLUE);
 	}
 
+	// TODO: Make a fancy command class where it has a description and stuff for in the help section and the actual command logic can be written in a method
 	private void RunCommand(string commandInput)
 	{
 		// Split everything, and check for if we even added an arg
+		// TODO: Check for if multiple commands were entered at once (example: cls && help)
 		string command = commandInput.Split(" ")[0].Trim().ToLower();
 		string[] args = commandInput.Split(" ").Skip(1).ToArray(); //? skip removes first arg (command)
+
+		//? At current hardcoded settings, terminal has 48 columns/characters on X axis
 
 		// Check for what command it is
 		switch (command)
 		{
+			// Help
+			case "help":
+				output += "---- COMMAND LIST ----------\n"
+					+ "help        |  Shows this list\n"
+					+ "echo <text> |  Echo text\n"
+					+ "cls         |  Clear the screen\n\n";
+				break;
+
 			// Echo
 			case "echo":
-				output += "\n" + string.Join(' ', args);
+				output += string.Join(' ', args) + "\n\n";
+				break;
+
+			// Clear the screen
+			case "cls":
+				output = "";
 				break;
 
 			// Incorrect command
 			default:
-				output += $"\nUnknown command '{command}'.\nUse 'help' for a list of commands.\n";
+				output += $"\nUnknown command '{command}'.\nUse 'help' for a list of commands.\n\n";
 				break;
 		}
 	}
