@@ -31,6 +31,7 @@ class Game
 		Raylib.InitWindow(GAME_WIDTH, GAME_HEIGHT, "fps gaem");
 		Raylib.SetWindowState(ConfigFlags.FLAG_WINDOW_RESIZABLE);
 		Raylib.SetTargetFPS(SettingsManager.Settings.MaxFps);
+		Raylib.InitAudioDevice();
 		Raylib.SetExitKey(KeyboardKey.KEY_NULL);
 		Raylib.DisableCursor();		
 
@@ -47,6 +48,7 @@ class Game
 		CleanUp();
 
 		// Close the window when done
+		Raylib.CloseAudioDevice();
 		Raylib.CloseWindow();
 	}
 

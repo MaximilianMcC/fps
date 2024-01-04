@@ -17,6 +17,10 @@ class Terminal : Thing
 	private readonly Color backgroundColor = new Color(34, 8, 11, 255);
 	private readonly Color foregroundColor = new Color(179, 100, 0, 255);
 
+	// Sounds
+	private const int keyboardSoundsCount = 5;
+	private Sound[] keyboardSounds;
+
 	// Screen stuff
 	private string output;
 	private string prompt = ">";
@@ -43,6 +47,15 @@ class Terminal : Thing
 		// TODO: Do in an asset manager 
 		// TODO: Decide on a font
 		font = Raylib.LoadFont("./assets/font/BigBlue_Terminal_437TT.TTF");
+
+		// Load in all of the sounds
+		// TODO: Don't hardcode idk
+		keyboardSounds = new Sound[keyboardSoundsCount];
+		for (int i = 0; i < keyboardSoundsCount; i++)
+		{
+			Sound currentSound = Raylib.LoadSound($"./assets/audio/sound/key-stroke-{i + 1}.wav");
+			keyboardSounds[i] = currentSound;
+		}
 	}
 
 	public override void Start()
@@ -55,6 +68,8 @@ class Terminal : Thing
 
 	public override void Update()
 	{
+		bool keyPressed = false;
+
 		// Check for if any special keys are pressed
 		// TODO: Use switch
 		//! Could be very bad for performance
@@ -66,6 +81,7 @@ class Terminal : Thing
 			// Clear the input stuff for next time
 			input = "";
 			caretIndex = 0;
+			keyPressed = true;
 		}
 		else
 		{
@@ -78,8 +94,21 @@ class Terminal : Thing
 			string newInput = char.ConvertFromUtf32(keyboardInput);
 			input += newInput;
 			caretIndex++;
+			keyPressed = true;
 		}
 		
+		// Play a random keyboard sound when a key is pressed
+		if (keyPressed)
+		{
+			// Get a random sound
+			//? idk if its better to use built in C# rand, or Raylib but imma use raylib
+			Sound keySound = keyboardSounds[Raylib.GetRandomValue(0, keyboardSoundsCount - 1)];
+
+			// Play the sound
+			Raylib.PlaySound(keySound);
+
+			Console.WriteLine("playing sound");
+		}
 	}
  
 	// TODO: Flip 3d order and screen order so the screen is drawn first, then the 3d models
@@ -114,6 +143,8 @@ class Terminal : Thing
 
 		Raylib.UnloadRenderTexture(screen);
 		Raylib.UnloadRenderTexture(displayScreen);
+
+		for (int i = 0; i < keyboardSoundsCount; i++) Raylib.UnloadSound(keyboardSounds[i]);
 	}
 
 
