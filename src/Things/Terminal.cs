@@ -50,16 +50,38 @@ class Terminal : Thing
 		// Add the default starting text thingy to the terminal
 		output += "Type 'help' for a list of commands...\n\n";
 
-		//! debug
-		input = "echo Hello, world!";
+		// TODO: Lock input and snap camera when use terminal to stop moving around when typing
 	}
 
 	public override void Update()
 	{
-		// if (Raylib.IsKeyPressed(KeyboardKey.KEY_KP_ADD)) count++;
-		// else if (Raylib.IsKeyPressed(KeyboardKey.KEY_KP_SUBTRACT)) count--;
-	}
+		// Check for if any special keys are pressed
+		// TODO: Use switch
+		//! Could be very bad for performance
+		if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER) || Raylib.IsKeyPressed(KeyboardKey.KEY_KP_ENTER))
+		{
+			// Run the command if we typed something in it
+			if (input != "") RunCommand(input);
 
+			// Clear the input stuff for next time
+			input = "";
+			caretIndex = 0;
+		}
+		else
+		{
+			// Get the normal key stuff
+			// TODO: Add emojis to font because this will pick up on them
+			int keyboardInput = Raylib.GetCharPressed();
+			if (keyboardInput == 0) return;
+
+			// Add the input to the input if its a normal key
+			string newInput = char.ConvertFromUtf32(keyboardInput);
+			input += newInput;
+			caretIndex++;
+		}
+		
+	}
+ 
 	// TODO: Flip 3d order and screen order so the screen is drawn first, then the 3d models
 	public override void Render()
 	{
@@ -136,5 +158,26 @@ class Terminal : Thing
 		// TODO: Toggle for box-shape and line-shape caret for if people don't know how to use box caret (noob)
 		//! Will break if font isn't monospace
 		// TODO: Invert color where caret is
+	}
+
+	private void RunCommand(string commandInput)
+	{
+		// Split everything, and check for if we even added an arg
+		string command = commandInput.Split(" ")[0].Trim().ToLower();
+		string[] args = commandInput.Split(" ").Skip(1).ToArray(); //? skip removes first arg (command)
+
+		// Check for what command it is
+		switch (command)
+		{
+			// Echo
+			case "echo":
+				output += "\n" + string.Join(' ', args);
+				break;
+
+			// Incorrect command
+			default:
+				output += $"\nUnknown command '{command}'.\nUse 'help' for a list of commands.\n";
+				break;
+		}
 	}
 }
