@@ -26,6 +26,11 @@ class Terminal : Thing
 	private string prompt = ">";
 	private string input = "";
 	private int caretIndex = 0;
+	private const double caretBlinkTime = 0.5f; //? seconds
+	private double lastCaretBlinkTime;
+	private bool caretCurrentlyVisible;
+	int historyIndex;
+	List<string> history;
 
 
 
@@ -62,6 +67,8 @@ class Terminal : Thing
 	{
 		// Add the default starting text thingy to the terminal
 		output += "Type 'help' for a list of commands...\n\n";
+		history = new List<string>();
+		lastCaretBlinkTime = Raylib.GetTime();
 
 		// TODO: Lock input and snap camera when use terminal to stop moving around when typing
 	}
@@ -76,7 +83,12 @@ class Terminal : Thing
 		if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER) || Raylib.IsKeyPressed(KeyboardKey.KEY_KP_ENTER))
 		{
 			// Run the command if we typed something in it
-			if (input != "") RunCommand(input);
+			// then add it to history
+			if (input != "")
+			{
+				RunCommand(input);
+				history.Add(input);
+			}
 
 			// Clear the input stuff for next time
 			input = "";
@@ -128,6 +140,20 @@ class Terminal : Thing
 		{
 			// Go to the beginning of the input
 			caretIndex = 0;
+
+			keyPressed = true;
+		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_UP))
+		{
+			historyIndex++;
+			if (historyIndex > history.Count) historyIndex = history.Count;
+
+			keyPressed = true;
+		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_DOWN))
+		{
+			historyIndex--;
+			if (historyIndex < 0) historyIndex = 0;
 
 			keyPressed = true;
 		}
@@ -236,17 +262,27 @@ class Terminal : Thing
 		y += paddingHalf;
 		Raylib.DrawTextEx(font, (prompt + input), new Vector2(padding2, y), fontSize, fontSpacing, foregroundColor);
 
-		// Draw the caret
+		// Check for if we can draw the caret or not
+		double currentTime = Raylib.GetTime();
+		double elapsedTime = currentTime - lastCaretBlinkTime;
+		if (elapsedTime > caretBlinkTime)
+		{
+			caretCurrentlyVisible = !caretCurrentlyVisible;
+			lastCaretBlinkTime = currentTime;
+		}
+
+		// Draw the caret if its currently visible
 		// TODO: Toggle for box-shape and line-shape caret for if people don't know how to use box caret (noob)
-		//! Will break if font isn't monospace
-		// TODO: Invert color where caret is
+		// TODO: Invert color where caret is for box
 		//! just doing caret for now because its easier (easy)
-
-
-
+		if (caretCurrentlyVisible)
+		{
+			float x = (padding2 + Raylib.MeasureTextEx(font, prompt, fontSize, fontSpacing).X) + Raylib.MeasureTextEx(font, input.Substring(0, caretIndex), fontSize, fontSpacing).X;
+			Raylib.DrawRectangleRec(new Rectangle(x, y, fontSpacing, fontSize), foregroundColor);
+		}
 
 		//! debug
-		Raylib.DrawText(caretIndex.ToString(), 0, 0, 30, Color.BLUE);
+		Raylib.DrawText(historyIndex.ToString(), 0, 0, 30, Color.BLUE);
 	}
 
 	// TODO: Make a fancy command class where it has a description and stuff for in the help section and the actual command logic can be written in a method
@@ -260,9 +296,11 @@ class Terminal : Thing
 		//? At current hardcoded settings, terminal has 48 columns/characters on X axis
 
 		// Check for what command it is
+		// TODO: Add command to rebind keys in settings
+		// TODO: Add command to change terminal theme (amber, green, white, etc) and toggle caret type
 		switch (command)
 		{
-			// Help
+			// Help 
 			case "help":
 				output += "---- COMMAND LIST ----------\n"
 					+ "help        |  Shows this list\n"
