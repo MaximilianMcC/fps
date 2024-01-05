@@ -63,6 +63,7 @@ class Game
 		PropManager.StartThings();
 
 		terminal = new Terminal();
+		terminal.Position = new Vector3(0, 0, -1);
 		terminal.Start();
 	}
 

@@ -21,7 +21,7 @@ class Terminal : Thing
 	private const int keyboardSoundsCount = 5;
 	private Sound[] keyboardSounds;
 
-	// Screen stuff
+	// Terminal input and output typing stuff
 	private string output;
 	private string prompt = ">";
 	private string input = "";
@@ -67,8 +67,8 @@ class Terminal : Thing
 	{
 		// Add the default starting text thingy to the terminal
 		output += "Type 'help' for a list of commands...\n\n";
-		history = new List<string>();
 		lastCaretBlinkTime = Raylib.GetTime();
+		history = new List<string>();
 
 		// TODO: Lock input and snap camera when use terminal to stop moving around when typing
 	}
@@ -87,7 +87,9 @@ class Terminal : Thing
 			if (input != "")
 			{
 				RunCommand(input);
+
 				history.Add(input);
+				historyIndex++;
 			}
 
 			// Clear the input stuff for next time
@@ -145,15 +147,25 @@ class Terminal : Thing
 		}
 		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_UP))
 		{
-			historyIndex++;
-			if (historyIndex > history.Count) historyIndex = history.Count;
+			// Decrease the index to go up the list
+			historyIndex--;
+			if (historyIndex < 0) historyIndex = 0;
+
+			// Set the index to the current history thingy
+			input = history[historyIndex];
+			caretIndex = input.Length;
 
 			keyPressed = true;
 		}
 		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_DOWN))
 		{
-			historyIndex--;
-			if (historyIndex < 0) historyIndex = 0;
+			// Increase the index to go down the list
+			historyIndex++;
+			if (historyIndex >= history.Count) historyIndex = history.Count - 1;
+
+			// Set the index to the current history thingy
+			input = history[historyIndex];
+			caretIndex = input.Length;
 
 			keyPressed = true;
 		}
@@ -283,6 +295,7 @@ class Terminal : Thing
 
 		//! debug
 		Raylib.DrawText(historyIndex.ToString(), 0, 0, 30, Color.BLUE);
+		Raylib.DrawText(history.Count().ToString(), 0, 30, 30, Color.BLUE);
 	}
 
 	// TODO: Make a fancy command class where it has a description and stuff for in the help section and the actual command logic can be written in a method
