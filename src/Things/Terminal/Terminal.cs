@@ -51,7 +51,8 @@ class Terminal : Thing
 		// Load the terminal font
 		// TODO: Do in an asset manager 
 		// TODO: Decide on a font
-		font = Raylib.LoadFont("./assets/font/BigBlue_Terminal_437TT.TTF");
+		// font = Raylib.LoadFont("./assets/font/BigBlue_Terminal_437TT.TTF");
+		font = Raylib.LoadFont("./assets/font/bedstead-extended.otf");
 
 		// Load in all of the sounds
 		// TODO: Don't hardcode idk
@@ -61,6 +62,11 @@ class Terminal : Thing
 			Sound currentSound = Raylib.LoadSound($"./assets/audio/sound/key-stroke-{i + 1}.wav");
 			keyboardSounds[i] = currentSound;
 		}
+
+		// Setup all of the commands
+		HelpCommand.Initialize();
+		EchoCommand.Initialize();
+		ClsCommand.Initialize();
 	}
 
 	public override void Start()
@@ -195,15 +201,13 @@ class Terminal : Thing
 
 			// Play the sound
 			Raylib.PlaySound(keySound);
-
-			Console.WriteLine("playing sound");
 		}
 	}
  
-	// TODO: Flip 3d order and screen order so the screen is drawn first, then the 3d models
 	public override void Render()
 	{
 		// Draw everything in the game world thingy
+		// TODO: Flip 3d order and screen order so the screen is drawn first, then the 3d models
 		Raylib.DrawModelEx(terminalModel, Position, Rotation, 0f, Scale, Color.WHITE);
 		Raylib.DrawModelEx(screenModel, Position, Rotation, 0f, Scale, Color.WHITE);
 
@@ -241,6 +245,7 @@ class Terminal : Thing
 
 
 	// TODO: Add a scanline shader or something
+	// TODO: Auto word-wrap, and scrolling
 	private void DrawScreen()
 	{
 		// Define constants for drawing
@@ -249,7 +254,7 @@ class Terminal : Thing
 		const float padding2 = padding * 2;
 		const float paddingHalf = padding / 2;
 		const float thickness = 3f;
-		float fontSize = 10f;
+		float fontSize = 9f;
 		float fontSpacing = fontSize / 10;
 
 		// Draw the background
@@ -313,23 +318,10 @@ class Terminal : Thing
 		// TODO: Add command to change terminal theme (amber, green, white, etc) and toggle caret type
 		switch (command)
 		{
-			// Help 
-			case "help":
-				output += "---- COMMAND LIST ----------\n"
-					+ "help        |  Shows this list\n"
-					+ "echo <text> |  Echo text\n"
-					+ "cls         |  Clear the screen\n\n";
-				break;
-
-			// Echo
-			case "echo":
-				output += string.Join(' ', args) + "\n\n";
-				break;
-
-			// Clear the screen
-			case "cls":
-				output = "";
-				break;
+			// TODO: Don't use crushed format
+			case "help": HelpCommand.Execute(args, ref output); break;
+			case "echo": EchoCommand.Execute(args, ref output); break;
+			case "cls": ClsCommand.Execute(args, ref output); break;
 
 			// Incorrect command
 			default:
