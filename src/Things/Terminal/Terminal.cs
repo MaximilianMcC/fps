@@ -67,13 +67,13 @@ class Terminal : Thing
 		}
 
 		// Setup all of the commands
-		//! Help command must be added last
+		//! Help command must be added last and separately
 		commands = new List<ICommand>()
 		{
 			new EchoCommand(),
-			new ClsCommand(),
-			new HelpCommand(commands),
+			new ClsCommand()
 		};
+		commands.Add(new HelpCommand(commands));
 	}
 
 	public override void Start()
