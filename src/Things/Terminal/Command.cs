@@ -1,18 +1,15 @@
-class Command
+interface ICommand
 {
-	// Info
-	public static string CommandName { get; protected set; }
-	public static string[] RequiredArgs { get; protected set; }
-	public static string[] OptionalArgs { get; protected set; }
+	// Command information
+	public string Name { get; }
+	public string[] RequiredArgs { get; }
+	public string[] OptionalArgs { get; }
 
-	// Crap for the help command
-	public static string DisplayName { get; protected set; }
-	public static string Description { get; protected set; }
+	// Stuff used by the help command
+	public string DisplayName { get; }
+	public string ShortDescription { get; }
+	public string LongDescription { get; }
 
-	// Command (returns the output)
-	// TODO: Put ref to output as arg
-	public static void Execute(string[] args, ref string output)
-	{
-		
-	}
+	// Run the command
+	public void Execute(string[] args, ref string output);
 }

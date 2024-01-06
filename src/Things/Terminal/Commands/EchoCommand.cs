@@ -1,19 +1,18 @@
-
-class EchoCommand : Command
+class EchoCommand : ICommand
 {
-	public static void Initialize()
-	{
-		CommandName = "echo";
-		RequiredArgs = new string[] { "text" };
-		OptionalArgs = null;
+	// Command information
+	public string Name => "echo";
+	public string[] RequiredArgs => new string[] { "text" };
+	public string[] OptionalArgs => null;
 
-		DisplayName = "Echo";
-		Description = "Echoes back arguments";
-	}
+	// Stuff used by the help command
+	public string DisplayName => "Echo";
+	public string ShortDescription => "Displays provided text.";
+	public string LongDescription => "Displays provided text.";
 
-	//? new is kinda like override for static stuff
-	public static new void Execute(string[] args, ref string output)
+	public void Execute(string[] args, ref string output)
 	{
+		// Give back the text
 		output += string.Join(' ', args) + "\n";
 	}
 }

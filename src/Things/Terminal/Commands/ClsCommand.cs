@@ -1,18 +1,18 @@
-
-class ClsCommand : Command
+class ClsCommand : ICommand
 {
-	public static void Initialize()
-	{
-		CommandName = "cls";
-		RequiredArgs = null;
-		OptionalArgs = null;
+	// Command information
+	public string Name => "cls";
+	public string[] RequiredArgs => null;
+	public string[] OptionalArgs => null;
 
-		DisplayName = "Clear";
-		Description = "Clears the screen";
-	}
+	// Stuff used by the help command
+	public string DisplayName => "Clear";
+	public string ShortDescription => "Clears the screen.";
+	public string LongDescription => "Clears the screen.";
 
-	public static new void Execute(string[] args, ref string output)
+	public void Execute(string[] args, ref string output)
 	{
+		// Completely reset the output
 		output = "";
 	}
 }

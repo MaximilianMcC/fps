@@ -1,19 +1,25 @@
-
-class HelpCommand : Command
+class HelpCommand : ICommand
 {
-	public static void Initialize()
-	{
-		CommandName = "help";
-		RequiredArgs = null;
-		OptionalArgs = new string[] { "command" };
+	// Command information
+	public string Name => "help";
+	public string[] RequiredArgs => null;
+	public string[] OptionalArgs => new string[] { "command" };
 
-		DisplayName = "Help";
-		Description = "Prints a list of available commands.";
+	// Stuff used by the help command
+	public string DisplayName => "Help";
+	public string ShortDescription => "Shows this menu.";
+	public string LongDescription => "Learn about how to use different commands and arguments.";
+
+	// Command list
+	List<ICommand> commandList;
+
+	public HelpCommand(List<ICommand> commands)
+	{
+		commandList = commands;
 	}
 
-
-	public static new void Execute(string[] args, ref string output)
+	public void Execute(string[] args, ref string output)
 	{
-		output += "---- COMMAND LIST ------------\n";
+		output += "---- COMMAND LIST ----------------\n";
 	}
 }

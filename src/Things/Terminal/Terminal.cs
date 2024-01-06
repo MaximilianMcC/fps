@@ -29,8 +29,11 @@ class Terminal : Thing
 	private const double caretBlinkTime = 0.5f; //? seconds
 	private double lastCaretBlinkTime;
 	private bool caretCurrentlyVisible;
-	int historyIndex;
-	List<string> history;
+	private int historyIndex;
+	private List<string> history;
+
+	// Actual terminal data
+	private List<ICommand> commands;
 
 
 
@@ -64,9 +67,13 @@ class Terminal : Thing
 		}
 
 		// Setup all of the commands
-		HelpCommand.Initialize();
-		EchoCommand.Initialize();
-		ClsCommand.Initialize();
+		//! Help command must be added last
+		commands = new List<ICommand>()
+		{
+			new EchoCommand(),
+			new ClsCommand(),
+			new HelpCommand(commands),
+		};
 	}
 
 	public override void Start()
@@ -297,10 +304,6 @@ class Terminal : Thing
 			float x = (padding2 + Raylib.MeasureTextEx(font, prompt, fontSize, fontSpacing).X) + Raylib.MeasureTextEx(font, input.Substring(0, caretIndex), fontSize, fontSpacing).X;
 			Raylib.DrawRectangleRec(new Rectangle(x, y, fontSpacing, fontSize), foregroundColor);
 		}
-
-		//! debug
-		Raylib.DrawText(historyIndex.ToString(), 0, 0, 30, Color.BLUE);
-		Raylib.DrawText(history.Count().ToString(), 0, 30, 30, Color.BLUE);
 	}
 
 	// TODO: Make a fancy command class where it has a description and stuff for in the help section and the actual command logic can be written in a method
@@ -311,22 +314,19 @@ class Terminal : Thing
 		string command = commandInput.Split(" ")[0].Trim().ToLower();
 		string[] args = commandInput.Split(" ").Skip(1).ToArray(); //? skip removes first arg (command)
 
-		//? At current hardcoded settings, terminal has 48 columns/characters on X axis
-
 		// Check for what command it is
 		// TODO: Add command to rebind keys in settings
 		// TODO: Add command to change terminal theme (amber, green, white, etc) and toggle caret type
-		switch (command)
+		foreach (ICommand currentCommand in commands)
 		{
-			// TODO: Don't use crushed format
-			case "help": HelpCommand.Execute(args, ref output); break;
-			case "echo": EchoCommand.Execute(args, ref output); break;
-			case "cls": ClsCommand.Execute(args, ref output); break;
-
-			// Incorrect command
-			default:
-				output += $"\nUnknown command '{command}'.\nUse 'help' for a list of commands.\n\n";
-				break;
+			if (command == currentCommand.Name)
+			{
+				currentCommand.Execute(args, ref output);
+				return;
+			}
 		}
+
+		// If the command didn't run give a error message
+		output += $"Unknown command '{command}'.\nPlease use 'help' for a list of commands.\n";
 	}
 }
