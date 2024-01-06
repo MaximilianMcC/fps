@@ -9,6 +9,7 @@ interface ICommand
 	public string DisplayName { get; }
 	public string ShortDescription { get; }
 	public string LongDescription { get; }
+	public string ExampleUsage { get; }
 
 	// Run the command
 	public void Execute(string[] args, ref string output);

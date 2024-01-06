@@ -9,6 +9,7 @@ class EchoCommand : ICommand
 	public string DisplayName => "Echo";
 	public string ShortDescription => "Displays provided text.";
 	public string LongDescription => "Displays provided text.";
+	public string ExampleUsage => "echo Hello, World!";
 
 	public void Execute(string[] args, ref string output)
 	{

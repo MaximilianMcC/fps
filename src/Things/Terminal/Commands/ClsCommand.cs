@@ -9,6 +9,7 @@ class ClsCommand : ICommand
 	public string DisplayName => "Clear";
 	public string ShortDescription => "Clears the screen.";
 	public string LongDescription => "Clears the screen.";
+	public string ExampleUsage => "cls";
 
 	public void Execute(string[] args, ref string output)
 	{
