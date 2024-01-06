@@ -58,8 +58,9 @@ class Game
 	{
 		player = new Player();
 
-		// Add some things
-		// ThingManager.Things.Add(new Thing("CRT Monitor", Vector3.Zero, Vector3.Zero, "./assets/crt.obj", new string[] { "./assets/crt.png" }));
+		// Add props
+		//? Props are stuff with no logic, just simple 3D models.
+		PropManager.Props.Add(new Prop("xyz", Vector3.Zero, Vector3.Zero, "./assets/xyz.obj", "./assets/xyz.png"));
 		PropManager.StartThings();
 
 		terminal = new Terminal();
