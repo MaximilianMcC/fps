@@ -6,23 +6,23 @@ class Game
 	// Game rending SettingsManager.Settings and stuff
 	// TODO: Make 4:3
 	// TODO: Mess around with resolution until get something good
-	private const int GAME_WIDTH = 1920;
-	private const int GAME_HEIGHT = 1080;
+	private static readonly int GAME_WIDTH = 1920;
+	private static readonly int GAME_HEIGHT = 1080;
 
 	// Render Texture
-	private RenderTexture2D cameraRenderTexture;
+	private static RenderTexture2D cameraRenderTexture;
 
 	//! debug
-	private Terminal terminal;
+	private static Terminal terminal;
 
 	// Things
 	// TODO: Put in resource manager
-	private Player player;
+	public static Player player;
 
 	// Other things
-	private bool paused = false;
+	private static bool paused = false;
 
-	public void Run()
+	public static void Run()
 	{
 		// Load all of the Settings
 		SettingsManager.Load();
@@ -54,7 +54,7 @@ class Game
 
 
 
-	private void Start()
+	private static void Start()
 	{
 		player = new Player();
 
@@ -68,14 +68,14 @@ class Game
 		terminal.Start();
 	}
 
-	private void Update()
+	private static void Update()
 	{
 		// Update stuff that can't be paused
 		Debug.Terminal.Update();
 		Debug.FPSGraph.Update();
 
 		// Check for if the game is paused
-		if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE)) 
+		if (Raylib.IsKeyPressed(SettingsManager.Settings.Pause)) 
 		{
 			// Toggle paused
 			paused = !paused;
@@ -107,11 +107,10 @@ class Game
 			// TODO: Make it so that the window doesn't minimize when alt+tabbing
 			Raylib.ToggleFullscreen();
 		}
-
 	}
 
 	// TODO: Render in 4:3 squished
-	private void Render()
+	private static void Render()
 	{
 		// Draw 3D camera output to the render texture
 		Raylib.BeginTextureMode(cameraRenderTexture);
@@ -156,7 +155,7 @@ class Game
 	}
 
 	// When the game is ended/closed/quit
-	private void CleanUp()
+	private static void CleanUp()
 	{
 		PropManager.KillThings();
 		terminal.Cleanup();
