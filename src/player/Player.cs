@@ -61,6 +61,9 @@ class Player
 		MouseMovement();
 		KeyboardMovement();
 
+		// Other stuff
+		Zoom();
+
 		// Move and update the camera
 		Camera.position = new Vector3(Position.X, Position.Y + (Height - eyeYFromTopOfHead), Position.Z);
 		Camera.target = Camera.position + forwardDirection;
@@ -158,6 +161,22 @@ class Player
 		Position = newPosition;
 	}
 
+	private void Zoom()
+	{
+		// Check for if the player is holding down the zoom button
+		// TODO: Lerp it
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Zoom))
+		{
+			// Zoom in a bit
+			// TODO: Add zoom level to settings
+			Camera.fovy = SettingsManager.Settings.Fov / 2;
+		}
+		else
+		{
+			// TODO: Don't set every frame
+			Camera.fovy = SettingsManager.Settings.Fov;
+		}
+	}
 
 
 	// Get a whole ton of rubbish info about the player

@@ -18,6 +18,7 @@ public class Settings
 	// Mouse movement stuff
 	public float Sensitivity { get; set; } = 150f; //! If goes < 0 movement is reversed. 0 is no movement
 	public float Fov { get; set; } = 60f;
+	public KeyboardKey Zoom { get; set; } = KeyboardKey.KEY_C;
 
 	// Graphics/video stuff
 	public int MaxFps { get; set; } = 144;
