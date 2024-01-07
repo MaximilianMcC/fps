@@ -90,7 +90,7 @@ class HelpCommand : ICommand
 		if (command.RequiredArgs == null) return label;
 
 		// Return the label and args if they exist
-		label += GetArgs(RequiredArgs);
+		label += GetArgs(command.RequiredArgs);
 		return label;
 	}
 
