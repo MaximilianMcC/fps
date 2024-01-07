@@ -20,6 +20,13 @@ public class Settings
 	public float Fov { get; set; } = 60f;
 	public KeyboardKey Zoom { get; set; } = KeyboardKey.KEY_C;
 
+	// General controls
+	public KeyboardKey Exit = KeyboardKey.KEY_ESCAPE;
+	public KeyboardKey Use = KeyboardKey.KEY_E;
+
+	// Miscellaneous stuff
+	[JsonIgnore] public KeyboardKey Pause = KeyboardKey.KEY_ESCAPE;
+
 	// Graphics/video stuff
 	public int MaxFps { get; set; } = 144;
 

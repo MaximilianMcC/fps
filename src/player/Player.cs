@@ -31,6 +31,12 @@ class Player
 	private Vector3 forwardDirection;
 	private Vector3 right;
 
+	// Interaction stuff
+	public bool MovementLocked = false;
+	public bool CameraLocked = false;
+	public Ray Ray;
+	public RayCollision RayCollision;
+
 	// Make a new player
 	public Player()
 	{
@@ -57,12 +63,14 @@ class Player
 	// Update
 	public void Update()
 	{
-		// Move the player
-		MouseMovement();
-		KeyboardMovement();
+		// Move the player if we're allowed to
+		if (!CameraLocked) MouseMovement();
+		if (!MovementLocked) KeyboardMovement();
+		
 
 		// Other stuff
-		Zoom();
+		// TODO: Don't check for if camera locked again
+		if (!CameraLocked) Zoom();
 
 		// Move and update the camera
 		Camera.position = new Vector3(Position.X, Position.Y + (Height - eyeYFromTopOfHead), Position.Z);
@@ -188,7 +196,9 @@ class Player
 			$"\nMass: {Mass} meters (fat)" +
 			$"\nCrouching: {Crouching}" +
 			$"\n\nPosition: {Position}" + 
-			$"\nCamera Position: {Camera.position}";
+			$"\nCamera Position: {Camera.position}" +
+			$"\n\nKeyboard movement Locked: {MovementLocked}" +
+			$"\nMouse movement Locked: {CameraLocked}";
 	}
 
 }

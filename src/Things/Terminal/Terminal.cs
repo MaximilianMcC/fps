@@ -35,6 +35,10 @@ class Terminal : Thing
 	// Actual terminal data
 	private List<ICommand> commands;
 
+	// Interaction
+	private bool beingUsed;
+	private float UseRadius = 3f;
+
 
 
 	public Terminal() : base("Terminal")
@@ -87,6 +91,46 @@ class Terminal : Thing
 	}
 
 	public override void Update()
+	{
+		// Handle the terminals keyboard and whatnot
+		//? Keyboard is ran before CheckInteraction to stop player typing in the interact key
+		if (beingUsed) Keyboard();
+
+		// Check for if the player is using the terminal
+		// TODO: Don't make it so that there is a specific button. If they are within range and looking at the correct area then put them in it
+		CheckInteraction();
+	}
+ 
+	private void CheckInteraction()
+	{
+		// Check for if the player wants to exit
+		// TODO: Stop the menu from popping up when pressing idk
+		// TODO: Maybe have to use exit command or something to exit
+		if (Raylib.IsKeyPressed(SettingsManager.Settings.Exit))
+		{
+			beingUsed = false;
+
+			// Let the player move again
+			Game.Player.CameraLocked = false;
+			Game.Player.MovementLocked = false;
+		}
+
+		// Check for if the player wants to use the terminal
+		// TODO: Make sure the player is looking at the terminal also
+		if (Raylib.IsKeyPressed(SettingsManager.Settings.Use))
+		{
+			// Player must be within the use radius
+			if (Utils.GetDistance(Position, Game.Player.Position) >= UseRadius) return;
+
+			beingUsed = true;
+
+			// Lock the player movement
+			Game.Player.CameraLocked = true;
+			Game.Player.MovementLocked = true;
+		}
+	}
+
+	private void Keyboard()
 	{
 		bool keyPressed = false;
 
@@ -210,7 +254,7 @@ class Terminal : Thing
 			Raylib.PlaySound(keySound);
 		}
 	}
- 
+
 	public override void Render()
 	{
 		// Draw everything in the game world thingy

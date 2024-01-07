@@ -17,7 +17,7 @@ class Game
 
 	// Things
 	// TODO: Put in resource manager
-	public static Player player;
+	public static Player Player;
 
 	// Other things
 	private static bool paused = false;
@@ -56,7 +56,7 @@ class Game
 
 	private static void Start()
 	{
-		player = new Player();
+		Player = new Player();
 
 		// Add props
 		//? Props are stuff with no logic, just simple 3D models.
@@ -87,7 +87,7 @@ class Game
 		if (paused) return;
 
 		// Update stuff that can be paused
-		player.Update();
+		Player.Update();
 		PropManager.UpdateThings();
 
 		terminal.Update();
@@ -114,7 +114,7 @@ class Game
 	{
 		// Draw 3D camera output to the render texture
 		Raylib.BeginTextureMode(cameraRenderTexture);
-		Raylib.BeginMode3D(player.Camera);
+		Raylib.BeginMode3D(Player.Camera);
 		Raylib.ClearBackground(Color.MAGENTA);
 		
 		// Draw 3D stuff
@@ -148,7 +148,7 @@ class Game
 		Debug.FPSGraph.Render();
 		HUD.Render();
 
-		if (Debug.DebugMode) Raylib.DrawText(player.ToString(), 30, 450, 30, Color.WHITE);
+		if (Debug.DebugMode) Raylib.DrawText(Player.ToString(), 30, 450, 30, Color.WHITE);
 
 		// Stop drawing everything
 		Raylib.EndDrawing();
