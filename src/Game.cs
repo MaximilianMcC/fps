@@ -21,6 +21,7 @@ class Game
 
 	// Other things
 	private static bool paused = false;
+	public static bool CanBePaused = true; //? Used for if escape key being used by another thingy
 
 	public static void Run()
 	{
@@ -75,7 +76,7 @@ class Game
 		Debug.FPSGraph.Update();
 
 		// Check for if the game is paused
-		if (Raylib.IsKeyPressed(SettingsManager.Settings.Pause)) 
+		if (Raylib.IsKeyPressed(SettingsManager.Settings.Pause) && CanBePaused) 
 		{
 			// Toggle paused
 			paused = !paused;

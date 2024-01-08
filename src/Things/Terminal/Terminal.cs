@@ -109,6 +109,7 @@ class Terminal : Thing
 		if (Raylib.IsKeyPressed(SettingsManager.Settings.Exit))
 		{
 			beingUsed = false;
+			Game.CanBePaused = true;
 
 			// Let the player move again
 			Game.Player.CameraLocked = false;
@@ -123,6 +124,7 @@ class Terminal : Thing
 			if (Utils.GetDistance(Position, Game.Player.Position) >= UseRadius) return;
 
 			beingUsed = true;
+			Game.CanBePaused = false;
 
 			// Lock the player movement
 			Game.Player.CameraLocked = true;
