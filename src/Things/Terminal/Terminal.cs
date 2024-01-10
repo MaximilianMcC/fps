@@ -12,8 +12,8 @@ class Terminal : Thing
 	private RenderTexture2D screen;
 	private RenderTexture2D displayScreen; //? used to flip the image
 	private Font font;
-	private float screenWidth = 400;
-	private float screenHeight = 300;
+	private float screenWidth = 1280;
+	private float screenHeight = 960;
 	private readonly Color backgroundColor = new Color(34, 8, 11, 255);
 	private readonly Color foregroundColor = new Color(179, 100, 0, 255);
 
@@ -334,11 +334,11 @@ class Terminal : Thing
 	{
 		// Define constants for drawing
 		// TODO: Put some of this stuff up where the colors are
-		const float padding = 10;
+		const float padding = 50;
 		const float padding2 = padding * 2;
 		const float paddingHalf = padding / 2;
-		const float thickness = 3f;
-		float fontSize = 9f;
+		const float thickness = 5f;
+		float fontSize = 20f;
 		float fontSpacing = fontSize / 10;
 
 		// Draw the background
