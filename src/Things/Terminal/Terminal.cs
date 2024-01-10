@@ -31,6 +31,8 @@ class Terminal : Thing
 	private bool caretCurrentlyVisible;
 	private int historyIndex;
 	private List<string> history;
+	private int autocompleteIndex;
+	private string autocompleteInput = "";
 
 	// Actual terminal data
 	private List<ICommand> commands;
@@ -75,7 +77,8 @@ class Terminal : Thing
 		commands = new List<ICommand>()
 		{
 			new EchoCommand(),
-			new ClsCommand()
+			new ClsCommand(),
+			new ExitCommand()
 		};
 		commands.Add(new HelpCommand(commands));
 	}
@@ -154,6 +157,8 @@ class Terminal : Thing
 			// Clear the input stuff for next time
 			input = "";
 			caretIndex = 0;
+			autocompleteIndex = 0;
+			autocompleteInput = "";
 			keyPressed = true;
 		}
 		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE))
@@ -227,6 +232,32 @@ class Terminal : Thing
 			caretIndex = input.Length;
 
 			keyPressed = true;
+		}
+		else if (Raylib.IsKeyPressed(KeyboardKey.KEY_TAB))
+		{
+			// Check for if we're typing in a command, or arguments.
+			// Autocomplete can only work on commands.
+			if (input.Contains(" ")) return;
+
+			// If we aren't looking at autocomplete input then
+			// preserve the current input so we don't use the previous
+			// autocompleted text to search for the next autocomplete
+			if (autocompleteInput == "") autocompleteInput = input;
+
+			// Get all of the commands that start with the input. If there are
+			// none the return. Also play the sound now for incase we return
+			ICommand[] autocompleteCommands = commands.Where(command => command.Name.StartsWith(autocompleteInput)).ToArray();
+			keyPressed = true;
+			if (autocompleteCommands.Length == 0) return;
+
+			// Set the text to the input
+			input = autocompleteCommands[autocompleteIndex].Name;
+			caretIndex = autocompleteCommands[autocompleteIndex].Name.Length;
+
+			// Increase the index for next time and loop it
+			autocompleteIndex++;
+			if (autocompleteIndex >= autocompleteCommands.Count()) autocompleteIndex = 0;
+
 		}
 		else
 		{
