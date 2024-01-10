@@ -29,6 +29,7 @@ class Terminal : Thing
 	private const double caretBlinkTime = 0.5f; //? seconds
 	private double lastCaretBlinkTime;
 	private bool caretCurrentlyVisible;
+	private bool caretCanBlink = false;
 	private int historyIndex;
 	private List<string> history;
 	private int autocompleteIndex;
@@ -112,6 +113,7 @@ class Terminal : Thing
 		if (Raylib.IsKeyPressed(SettingsManager.Settings.Exit))
 		{
 			beingUsed = false;
+			caretCanBlink = false;
 			Game.CanBePaused = true;
 
 			// Let the player move again
@@ -127,6 +129,7 @@ class Terminal : Thing
 			if (Utils.GetDistance(Position, Game.Player.Position) >= UseRadius) return;
 
 			beingUsed = true;
+			caretCanBlink = true;
 			Game.CanBePaused = false;
 
 			// Lock the player movement
@@ -376,7 +379,7 @@ class Terminal : Thing
 		// TODO: Toggle for box-shape and line-shape caret for if people don't know how to use box caret (noob)
 		// TODO: Invert color where caret is for box
 		//! just doing caret for now because its easier (easy)
-		if (caretCurrentlyVisible)
+		if (caretCanBlink && caretCurrentlyVisible)
 		{
 			float x = (padding2 + Raylib.MeasureTextEx(font, prompt, fontSize, fontSpacing).X) + Raylib.MeasureTextEx(font, input.Substring(0, caretIndex), fontSize, fontSpacing).X;
 			Raylib.DrawRectangleRec(new Rectangle(x, y, fontSpacing, fontSize), foregroundColor);
