@@ -34,6 +34,7 @@ class Terminal : Thing
 	private List<string> history;
 	private int autocompleteIndex;
 	private string autocompleteInput = "";
+	private float scrollY = 0;
 
 	// Actual terminal data
 	private List<ICommand> commands;
@@ -75,6 +76,7 @@ class Terminal : Thing
 
 		// Setup all of the commands
 		//! Help command must be added last and separately
+		// TODO: Make multiple examples
 		commands = new List<ICommand>()
 		{
 			new EchoCommand(),
@@ -98,7 +100,11 @@ class Terminal : Thing
 	{
 		// Handle the terminals keyboard and whatnot
 		//? Keyboard is ran before CheckInteraction to stop player typing in the interact key
-		if (beingUsed) Keyboard();
+		if (beingUsed)
+		{
+			Keyboard();
+			Scroll();
+		}
 
 		// Check for if the player is using the terminal
 		// TODO: Don't make it so that there is a specific button. If they are within range and looking at the correct area then put them in it
@@ -291,6 +297,23 @@ class Terminal : Thing
 		}
 	}
 
+	private void Scroll()
+	{
+		const float scrollSpeed = 30f;
+
+		// Check for scrolling using the actual scroll wheel
+		scrollY -= Raylib.GetMouseWheelMove() * scrollSpeed;
+
+		// Check for scrolling using the page down/up keys
+		// TODO: Play key pressed sound when use the buttons
+		// TODO: Make it so you can hold the buttons
+		if (Raylib.IsKeyPressed(KeyboardKey.KEY_PAGE_DOWN)) scrollY += scrollSpeed;
+		if (Raylib.IsKeyPressed(KeyboardKey.KEY_PAGE_UP)) scrollY -= scrollSpeed;
+
+		// Stop the stuff from going offscreen
+		if (scrollY < 0) scrollY = 0;
+	}
+
 	public override void Render()
 	{
 		// Draw everything in the game world thingy
@@ -353,7 +376,7 @@ class Terminal : Thing
 
 		// Draw the output stream thingy
 		// TODO: Do some maths to make it scroll as characters are added
-		Raylib.DrawTextEx(font, output, new Vector2(padding2, padding2), fontSize, fontSpacing, foregroundColor);
+		Raylib.DrawTextEx(font, output, new Vector2(padding2, padding2 - scrollY), fontSize, fontSpacing, foregroundColor);
 
 		// Draw a line separating the input section
 		// TODO: Could hardcode all these values, but doing dynamically for now
