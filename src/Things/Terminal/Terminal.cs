@@ -12,8 +12,8 @@ class Terminal : Thing
 	private RenderTexture2D screen;
 	private RenderTexture2D displayScreen; //? used to flip the image
 	private Font font;
-	private float screenWidth = 1280;
-	private float screenHeight = 960;
+	private readonly float screenWidth = 1280;
+	private readonly float screenHeight = 960;
 	private readonly Color backgroundColor = new Color(34, 8, 11, 255);
 	private readonly Color foregroundColor = new Color(179, 100, 0, 255);
 
@@ -23,7 +23,7 @@ class Terminal : Thing
 
 	// Terminal input and output typing stuff
 	private TerminalOutput output;
-	private string prompt = ">";
+	private readonly string prompt = ">";
 	private string input = "";
 	private int caretIndex = 0;
 	private const double caretBlinkTime = 0.5f; //? seconds
@@ -77,10 +77,12 @@ class Terminal : Thing
 
 		// Get how many characters can fit on the
 		// screen of the terminal for word wrapping
-		int maxCharacters = (int)((screenWidth - 400) / Raylib.MeasureTextEx(font, "M", 20f, (20f / 10f)).X);
+		// TODO: Don't hardcode the values in here 
+		//! dont fully hardcode
+		int maxCharacters = 63;
+		// int maxCharacters = (int)((screenWidth - 200) / Raylib.MeasureTextEx(font, "M", 20f, (20f / 10f)).X);
 
 		// Setup the terminal output thingy
-		// TODO: Don't hardcode the max characters
 		output = new TerminalOutput(maxCharacters);
 
 		// Setup all of the commands
@@ -90,7 +92,9 @@ class Terminal : Thing
 		{
 			new EchoCommand(),
 			new ClsCommand(),
-			new ExitCommand()
+			new ExitCommand(),
+			new LoremCommand(),
+			new TestCommand()
 		};
 		commands.Add(new HelpCommand(commands));
 	}

@@ -28,12 +28,27 @@ class TerminalOutput
 		// If the text is less than the max then quit early
 		if (text.Length <= maxCharacters) return text;
 
-		// Loop through the text and add newlines before the text
-		// TODO: Make it only wrap on spaces
-		for (int i = 0; i < text.Length; i += maxCharacters)
+		// Split the text by the spaces so we can break on a space
+		string[] words = text.Split(" ");
+
+		// Loop through the text and add newlines
+		int characters = 0;
+		string wrappedText = "";
+		for (int i = 0; i < words.Length; i++)
 		{
-			text = text.Insert(i, "\n");
+			//  Check for if we need to insert a newline
+			// TODO: Guard clause
+			if (characters >= maxCharacters)
+			{
+				Console.WriteLine(characters + "\t" + maxCharacters);
+				wrappedText += "\n";
+				characters = 0;
+			}
+			else characters += words[i].Length;
+
+			wrappedText += words[i] + " ";
 		}
-		return text;
+
+		return wrappedText;
 	}
 }
