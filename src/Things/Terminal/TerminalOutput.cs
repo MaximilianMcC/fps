@@ -1,11 +1,11 @@
 class TerminalOutput
 {
 	public string Output { get; private set; }
-	private int maxCharacters;
+	public int MaxCharacters { get; private set; }
 
 	public TerminalOutput(int maxCharacters)
 	{
-		this.maxCharacters = maxCharacters;
+		MaxCharacters = maxCharacters;
 	}
 
 	public void WriteLine(string text)
@@ -26,7 +26,7 @@ class TerminalOutput
 	private string WordWrap(string text)
 	{
 		// If the text is less than the max then quit early
-		if (text.Length <= maxCharacters) return text;
+		if (text.Length <= MaxCharacters) return text;
 
 		// Split the text by the spaces so we can break on a space
 		string[] words = text.Split(" ");
@@ -38,15 +38,16 @@ class TerminalOutput
 		{
 			//  Check for if we need to insert a newline
 			// TODO: Guard clause
-			if (characters >= maxCharacters)
+			//? +1 is for a space
+			if (characters + words[i].Length + 1 > MaxCharacters)
 			{
-				Console.WriteLine(characters + "\t" + maxCharacters);
 				wrappedText += "\n";
 				characters = 0;
 			}
-			else characters += words[i].Length;
 
+			//? again, +1 is for a space
 			wrappedText += words[i] + " ";
+			characters += words[i].Length + 1;
 		}
 
 		return wrappedText;
