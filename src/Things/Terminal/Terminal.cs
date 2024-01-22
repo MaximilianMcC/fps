@@ -22,7 +22,7 @@ class Terminal : Thing
 	private Sound[] keyboardSounds;
 
 	// Terminal input and output typing stuff
-	private string output;
+	private TerminalOutput output;
 	private string prompt = ">";
 	private string input = "";
 	private int caretIndex = 0;
@@ -73,6 +73,15 @@ class Terminal : Thing
 			keyboardSounds[i] = currentSound;
 		}
 
+
+		// Get how many characters can fit on the
+		// screen of the terminal for word wrapping
+		int maxCharacters = (int)((screenWidth - 400) / Raylib.MeasureTextEx(font, "M", 20f, (20f / 10f)).X);
+
+		// Setup the terminal output thingy
+		// TODO: Don't hardcode the max characters
+		output = new TerminalOutput(maxCharacters);
+
 		// Setup all of the commands
 		//! Help command must be added last and separately
 		commands = new List<ICommand>()
@@ -87,7 +96,7 @@ class Terminal : Thing
 	public override void Start()
 	{
 		// Add the default starting text thingy to the terminal
-		output += "Type 'help' for a list of commands...\n\n";
+		output.WriteLine("Type 'help' for a list of commands...\n");
 		lastCaretBlinkTime = Raylib.GetTime();
 		history = new List<string>();
 
@@ -344,6 +353,7 @@ class Terminal : Thing
 		float fontSize = 20f;
 		float fontSpacing = fontSize / 10;
 
+
 		// Draw the background
 		Raylib.ClearBackground(backgroundColor);
 
@@ -353,7 +363,7 @@ class Terminal : Thing
 
 		// Draw the output stream thingy
 		// TODO: Do some maths to make it scroll as characters are added
-		Raylib.DrawTextEx(font, output, new Vector2(padding2, padding2), fontSize, fontSpacing, foregroundColor);
+		Raylib.DrawTextEx(font, output.Output, new Vector2(padding2, padding2), fontSize, fontSpacing, foregroundColor);
 
 		// Draw a line separating the input section
 		// TODO: Could hardcode all these values, but doing dynamically for now
@@ -407,6 +417,6 @@ class Terminal : Thing
 		}
 
 		// If the command didn't run give a error message
-		output += $"Unknown command '{command}'.\nPlease use 'help' for a list of commands.\n";
+		output.WriteLine($"Unknown command '{command}'.\nPlease use 'help' for a list of commands.");
 	}
 }

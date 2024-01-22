@@ -11,9 +11,9 @@ class ClsCommand : ICommand
 	public string LongDescription => "Clears the screen.";
 	public string ExampleUsage => "cls";
 
-	public void Execute(string[] args, ref string output)
+	public void Execute(string[] args, ref TerminalOutput output)
 	{
 		// Completely reset the output
-		output = "";
+		output.Clear();
 	}
 }

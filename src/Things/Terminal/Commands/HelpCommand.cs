@@ -22,7 +22,7 @@ class HelpCommand : ICommand
 		Console.WriteLine(commandList.Count);
 	}
 
-	public void Execute(string[] args, ref string output)
+	public void Execute(string[] args, ref TerminalOutput output)
 	{
 		// Check for if they want to show a single command
 		if (args.Length >= 1)
@@ -42,24 +42,24 @@ class HelpCommand : ICommand
 		ShowAllCommands(ref output);
 	}
 
-	private void ShowSingleCommand(ICommand command, ref string output)
+	private void ShowSingleCommand(ICommand command, ref TerminalOutput output)
 	{
 		// Print a title and description
-		output += $"---- {command.DisplayName.ToUpper()} COMMAND ----------------\n" +
-			$"{command.LongDescription}\n";
+		output.WriteLine($"---- {command.DisplayName.ToUpper()} COMMAND ----------------\n" +
+			$"{command.LongDescription}");
 
 		// Print the required and optional args if there are any
-		output += $"Required Args: {GetArgs(command.RequiredArgs)}\n";
-		output += $"Optional Args: {GetArgs(command.OptionalArgs)}\n";
+		output.WriteLine($"Required Args: {GetArgs(command.RequiredArgs)}");
+		output.WriteLine($"Optional Args: {GetArgs(command.OptionalArgs)}");
 
 		// Print the example usage
-		output += $"Example usage: {command.ExampleUsage}\n";
+		output.WriteLine($"Example usage: {command.ExampleUsage}");
 	}
 
-	private void ShowAllCommands(ref string output)
+	private void ShowAllCommands(ref TerminalOutput output)
 	{
 		// Show a header
-		output += "---- COMMAND LIST ----------------\n";
+		output.WriteLine("---- COMMAND LIST ----------------");
 
 		// Get the longest label for calculating whitespace for the separator
 		// TODO: Don't do this because it's looping over the same arrays heaps of time (bad)
@@ -76,7 +76,7 @@ class HelpCommand : ICommand
 			// Calculate whitespace for the bar/separator
 			string label = GenerateLabel(command);
 			string whitespace = new string(' ', separatorX - label.Length);
-			output += $"{label}{whitespace} | {command.ShortDescription}\n";
+			output.WriteLine($"{label}{whitespace} | {command.ShortDescription}");
 		}
 	}
 

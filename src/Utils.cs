@@ -24,4 +24,10 @@ class Utils
 		return x + y + z;
 	}
 
+	// Linearly interpolate between two points over time
+	public static float Lerp(float startValue, float endValue, float time)
+	{
+		return (1 - time) * startValue + time * endValue;
+	}
+
 }

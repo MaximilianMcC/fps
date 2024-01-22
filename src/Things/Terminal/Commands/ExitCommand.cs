@@ -11,8 +11,8 @@ class ExitCommand : ICommand
 	public string LongDescription => "Exit the terminal, and stop interacting with it.";
 	public string ExampleUsage => "exit";
 
-	public void Execute(string[] args, ref string output)
+	public void Execute(string[] args, ref TerminalOutput output)
 	{
-		output += "not implemented!!";
+		output.WriteLine("not implemented!!");
 	}
 }

@@ -11,9 +11,9 @@ class EchoCommand : ICommand
 	public string LongDescription => "Displays provided text.";
 	public string ExampleUsage => "echo Hello, World!";
 
-	public void Execute(string[] args, ref string output)
+	public void Execute(string[] args, ref TerminalOutput output)
 	{
 		// Give back the text
-		output += string.Join(' ', args) + "\n";
+		output.WriteLine(string.Join(' ', args));
 	}
 }

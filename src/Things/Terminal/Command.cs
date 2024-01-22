@@ -12,5 +12,5 @@ interface ICommand
 	public string ExampleUsage { get; }
 
 	// Run the command
-	public void Execute(string[] args, ref string output);
+	public void Execute(string[] args, ref TerminalOutput output);
 }
