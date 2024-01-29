@@ -76,6 +76,7 @@ class Game
 		Debug.FPSGraph.Update();
 
 		// Check for if the game is paused
+		// if (Raylib.IsKeyPressed(SettingsManager.Settings.Pause) && CanBePaused) 
 		if (Raylib.IsKeyPressed(SettingsManager.Settings.Pause) && CanBePaused) 
 		{
 			// Toggle paused
@@ -85,6 +86,7 @@ class Game
 			if (paused) Raylib.EnableCursor();
 			else Raylib.DisableCursor();
 		}
+		if (Raylib.IsWindowFocused() == false) paused = true;
 		if (paused) return;
 
 		// Update stuff that can be paused
