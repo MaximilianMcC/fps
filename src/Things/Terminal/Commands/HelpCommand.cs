@@ -19,7 +19,6 @@ class HelpCommand : ICommand
 	public HelpCommand(List<ICommand> commands)
 	{
 		commandList = commands;
-		Console.WriteLine(commandList.Count);
 	}
 
 	public void Execute(string[] args, ref TerminalOutput output)
