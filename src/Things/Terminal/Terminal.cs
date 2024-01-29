@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Raylib_cs;
 
 class Terminal : Thing
@@ -35,6 +36,7 @@ class Terminal : Thing
 	private int autocompleteIndex;
 	private string autocompleteInput = "";
 	private float scrollY = 0;
+	const float scrollSpeed = 30f;
 
 	// Actual terminal data
 	private List<ICommand> commands;
@@ -78,7 +80,7 @@ class Terminal : Thing
 		// Get how many characters can fit on the
 		// screen of the terminal for word wrapping
 		// TODO: Don't hardcode the values in here 
-		//! dont fully hardcode
+		//! don't fully hardcode
 		int maxCharacters = 63;
 		// int maxCharacters = (int)((screenWidth - 200) / Raylib.MeasureTextEx(font, "M", 20f, (20f / 10f)).X);
 
@@ -122,6 +124,8 @@ class Terminal : Thing
 		// Check for if the player is using the terminal
 		// TODO: Don't make it so that there is a specific button. If they are within range and looking at the correct area then put them in it
 		CheckInteraction();
+
+		Console.WriteLine(scrollY + "\t" + screenHeight);
 	}
  
 	private void CheckInteraction()
@@ -312,8 +316,6 @@ class Terminal : Thing
 
 	private void Scroll()
 	{
-		const float scrollSpeed = 30f;
-
 		// Check for scrolling using the actual scroll wheel
 		scrollY -= Raylib.GetMouseWheelMove() * scrollSpeed;
 
@@ -438,11 +440,24 @@ class Terminal : Thing
 		{
 			if (command == currentCommand.Name)
 			{
+				// Reset everything for running the next command
+				output.Purge();
+
+				// Run the actual command
 				currentCommand.Execute(args, ref output);
+
+				// If needed, scroll down so that the new input is visible
+				float newScrollY = scrollY + output.LinesAdded * scrollSpeed;
+				if (scrollY >= screenHeight)
+				{
+
+				}
+				scrollY = newScrollY;
+
 				return;
 			}
 		}
-
+ 
 		// If the command didn't run give a error message
 		output.WriteLine($"Unknown command '{command}'.\nPlease use 'help' for a list of commands.");
 	}

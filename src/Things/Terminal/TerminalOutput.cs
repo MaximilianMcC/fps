@@ -2,6 +2,7 @@ class TerminalOutput
 {
 	public string Output { get; private set; }
 	public int MaxCharacters { get; private set; }
+	public int LinesAdded { get; private set; }
 
 	public TerminalOutput(int maxCharacters)
 	{
@@ -10,17 +11,28 @@ class TerminalOutput
 
 	public void WriteLine(string text)
 	{
-		Output += WordWrap(text) + "\n";
+		string wrappedText = WordWrap(text) + "\n";
+		Output += wrappedText;
+		LinesAdded += wrappedText.Split("\n").Length - 1;
 	}
 
 	public void Write(string text)
 	{
-		Output += WordWrap(text);
+		string wrappedText = WordWrap(text);
+		Output += wrappedText;
+		LinesAdded += wrappedText.Split("\n").Length - 1;
 	}
 
 	public void Clear()
 	{
 		Output = "";
+		LinesAdded = 0;
+	}
+
+	// Get ready for the next bunch of stuff to be added to the output
+	public void Purge()
+	{
+		LinesAdded = 0;
 	}
 
 	private string WordWrap(string text)
