@@ -6,8 +6,9 @@ class Game
 	// Game rending SettingsManager.Settings and stuff
 	// TODO: Make 4:3
 	// TODO: Mess around with resolution until get something good
-	private static readonly int GAME_WIDTH = 1920;
-	private static readonly int GAME_HEIGHT = 1080;
+	private static readonly int RENDER_WIDTH = 480;
+	private static readonly int RENDER_HEIGHT = 270;
+
 
 	// Render Texture
 	private static RenderTexture2D cameraRenderTexture;
@@ -29,15 +30,16 @@ class Game
 		SettingsManager.Load();
 
 		// Make raylib window
-		Raylib.InitWindow(GAME_WIDTH, GAME_HEIGHT, "fps gaem");
+		Raylib.InitWindow(RENDER_WIDTH, RENDER_HEIGHT, "fps gaem");
 		Raylib.SetWindowState(ConfigFlags.FLAG_WINDOW_RESIZABLE);
+		Raylib.SetWindowState(ConfigFlags.FLAG_WINDOW_MAXIMIZED);
 		Raylib.SetTargetFPS(SettingsManager.Settings.MaxFps);
 		Raylib.InitAudioDevice();
 		Raylib.SetExitKey(KeyboardKey.KEY_NULL);
-		Raylib.DisableCursor();		
+		Raylib.DisableCursor();
 
 		// Setup the render texture
-		cameraRenderTexture = Raylib.LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT);
+		cameraRenderTexture = Raylib.LoadRenderTexture(RENDER_WIDTH, RENDER_HEIGHT);
 
 		// Game
 		Start();
@@ -67,6 +69,8 @@ class Game
 		terminal = new Terminal();
 		terminal.Position = new Vector3(0, 0, -1);
 		terminal.Start();
+
+		Map.Load();
 	}
 
 	private static void Update()
@@ -76,7 +80,6 @@ class Game
 		Debug.FPSGraph.Update();
 
 		// Check for if the game is paused
-		// if (Raylib.IsKeyPressed(SettingsManager.Settings.Pause) && CanBePaused) 
 		if (Raylib.IsKeyPressed(SettingsManager.Settings.Pause) && CanBePaused) 
 		{
 			// Toggle paused
@@ -124,6 +127,7 @@ class Game
 		Raylib.DrawGrid(10, 1);
 		PropManager.RenderThings();
 
+		Map.Render();
 		terminal.Render();
 
 		// Finish drawing 3D stuff to render texture
@@ -162,5 +166,6 @@ class Game
 	{
 		PropManager.KillThings();
 		terminal.Cleanup();
+		Map.Unload();
 	}
 }
