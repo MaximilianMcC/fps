@@ -12,21 +12,21 @@ class Player
 	// Dimensions and stuff
 	public float Height { get; private set; }
 	public bool Crouching { get; set; } = false;
-	private float standingHeight = 1.75f; //? Meter
+	private float standingHeight = 1.65f; //? Meter
 	private float crouchingHeight = 1f; //? Meter
 	private float eyeYFromTopOfHead = 0.15f; //? Meter
 
 	// Physics stuff
-	// TODO: Figure out why the player sinks into the ground (something to do with friction i think)
 	public float Mass { get; private set; } = 62; //? kilograms
 	public Vector3 Velocity { get; set; } = Vector3.Zero;
 	private float frictionCoefficient = 0.1f;
 
 	// Movement stuff
 	public float Speed { get; private set; }
-	private float crouchForce;
 	private float walkForce;
 	private float runForce;
+	private const float backwardCoefficient = 0.8f;
+	private const float crouchCoefficient = 0.3f;
 	private Vector3 forward;
 	private Vector3 forwardDirection;
 	private Vector3 right;
@@ -57,7 +57,6 @@ class Player
 		//! I asked Clyde for average horizontal force applied when walking and they said 0.5 - 1.5
 		walkForce = Mass * 1.2f;
 		runForce = Mass * 1.5f;
-		crouchForce = Mass * 0.4f;
 	}
 
 	// Update
@@ -116,6 +115,7 @@ class Player
 	private void KeyboardMovement()
 	{
 		// Check for if the player wants to crouch
+		// TODO: Check for if the crouch key is shift, and if it is check for if they are doing `win+shift+s` and don't crouch
 		if (Raylib.IsKeyDown(SettingsManager.Settings.Crouch))
 		{
 			Crouching = true;
@@ -133,7 +133,16 @@ class Player
 		{
 			moveForce = runForce;
 		}
-		else if (Crouching) moveForce = crouchForce;
+
+		// Check for if the player is moving backwards
+		// TODO: Only check for movement once. Do this another way
+		if (Raylib.IsKeyDown(SettingsManager.Settings.Backwards))
+		{
+			moveForce *= backwardCoefficient;
+		}
+
+		// Check for if the player is crouching
+		if (Crouching) moveForce *= crouchCoefficient;
 
 		Vector3 force = Vector3.Zero;
 
