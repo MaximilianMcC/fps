@@ -1,4 +1,3 @@
-using System.Numerics;
 using Raylib_cs;
 
 class Game
@@ -12,7 +11,7 @@ class Game
 		Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
 		Raylib.SetConfigFlags(ConfigFlags.AlwaysRunWindow);
 		Raylib.InitWindow(854, 480, "Computer video game.");
-
+		
 		// Load everything
 		Start();
 		while (!Raylib.WindowShouldClose())
@@ -32,6 +31,7 @@ class Game
 	private static void Start()
 	{
 		// Start/initialize everything
+		Map.Load();
 		Player.Start(500, 300);
 	}
 
@@ -51,15 +51,11 @@ class Game
 		Raylib.BeginMode3D(Player.Camera);
 
 		//! debug
-		Raylib.ClearBackground(Color.Green);
+		Raylib.ClearBackground(Color.Blue);
 
 		// Render all the 3D stuff
+		Map.Render();
 		Raylib.DrawGrid(10, 1);
-
-		Raylib.DrawCube(new Vector3(0, 1, 5), 1, 1, 1, Color.Red);
-		Raylib.DrawCube(new Vector3(0, 1, -5), 1, 1, 1, Color.Red);
-		Raylib.DrawCube(new Vector3(5, 1, 0), 1, 1, 1, Color.Red);
-		Raylib.DrawCube(new Vector3(-5, 1, 0), 1, 1, 1, Color.Red);
 
 		Raylib.EndMode3D();
 		Raylib.EndTextureMode();
@@ -72,6 +68,7 @@ class Game
 	private static void CleanUp()
 	{
 		Player.CleanUp();
+		Map.CleanUp();
 
 		// Close all the raylib stuff
 		//! Make sure this is always done very last

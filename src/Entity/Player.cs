@@ -4,9 +4,9 @@ using Raylib_cs;
 class Player
 {
 	// Position stuff
-	public static Vector3 Position { get; set; }
-	public static float Pitch { get; set; }
-	public static float Yaw { get; set; }
+	public static Vector3 Position;
+	public static float Pitch;
+	public static float Yaw;
 
 	// Camera stuff
 	public static Camera3D Camera;
@@ -17,16 +17,19 @@ class Player
 	private static float height = 1.65f;
 	private static float eyeYFromTopOfHead = 0.15f;
 
-	// Movement stuff
-	private static Vector3 forwardDirection;
-	private static Vector3 forward;
-	private static Vector3 right;
-	private static float walkForce;
-
 	// Physics stuff
 	private static Vector3 velocity;
 	private static float mass = 62f;
 	private static float frictionCoefficient = 0.1f;
+
+	// Movement stuff
+	//? Force values from clyde💔 never forget🙏
+	private static Vector3 forwardDirection;
+	private static Vector3 forward;
+	private static Vector3 right;
+	private static bool onGround;
+	private static float walkForce = mass * 1.2f;
+	private static float jumpForce = mass * 0.04f;
 
 	public static void Start(int renderWidth, int renderHeight)
 	{
@@ -43,11 +46,6 @@ class Player
 			FovY = 60f,
 			Projection = CameraProjection.Perspective
 		};
-
-		// Set forces based on weight
-		//? Values from clyde💔 never forget🙏
-		walkForce = mass * 1.2f;
-		Console.WriteLine(mass);
 
 		// Keep the players mouse in the centre of the screen
 		// and hide it so they can look around normally
@@ -71,6 +69,8 @@ class Player
 		// TODO: Only calculate destination when the window is resized
 		Rectangle destination = new Rectangle(0f, 0f, Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 		Raylib.DrawTexturePro(CameraOutput.Texture, outputSource, destination, Vector2.Zero, 0f, Color.White);
+
+		Raylib.DrawText($"Velocity: {velocity}\n\n\nPosition: {Position}\n\n\non ground rn {onGround}", 10, 10, 45, Color.White);
 	}
 
 	public static void CleanUp()
@@ -114,7 +114,6 @@ class Player
 		forwardDirection = Vector3.Transform(-Vector3.UnitZ, rotation);
 	}
 
-	// TODO: If player hasn't moved don't do all this movement maths, but still do gravity and stuff
 	private static void BodyMovement()
 	{
 		// Get the movement forces direction
@@ -135,17 +134,36 @@ class Player
 		// Add the new force to the velocity
 		// so the player actually moves
 		//TODO: Figure out why divide by mass I forgot
-		velocity += movementForce / mass;
+		velocity.X += movementForce.X / mass;
+		velocity.Z += movementForce.Z / mass;
+
 
 		// Apply friction to slow down the player overtime
 		// and if their velocity is tiny then just stop them
 		Vector3 friction = -frictionCoefficient * velocity;
-		velocity += friction;
-		if (velocity.LengthSquared() < 0.1f) velocity = Vector3.Zero;
+		velocity.X += friction.X;
+		velocity.Z += friction.Z;
+		if (velocity.LengthSquared() < 0.1f) velocity *= new Vector3(0f, 1f, 0f);
 
-		// Remove Y velocity
-		// TODO: Remove this when adding gravity. If adding a noclip/spectator mode then remove everything related to Y, and the player will fly in direction they looking
-		velocity.Y = 0;
+
+		//! debug
+		if (Raylib.IsKeyPressed(KeyboardKey.Up)) Position.Y	= 100f;
+
+
+		// Apply gravity to make the player fall
+		// TODO: See if delta time is actually required here
+		// TODO: Make mass do something to this
+		velocity.Y -= Map.Gravity * Raylib.GetFrameTime();
+
+
+		// Check for if the player wants to jump
+		if (Raylib.IsKeyPressed(KeyboardKey.Space) && onGround)
+		{
+			Console.WriteLine("jumping rn (eligible)");
+			velocity.Y = jumpForce;
+			onGround = false;
+		}
+
 
 		// Update the players position based on
 		// their new velocity and also apply
@@ -153,7 +171,18 @@ class Player
 		Vector3 newPosition = Position;
 		newPosition += velocity * Raylib.GetFrameTime();
 
-		// TODO: Collision
+		// Get the ground position based on the players new position.
+		// If the player is falling into the floor then that means
+		// they would have landed. Reset all their variables.
+		float groundY = Map.GetGroundY(newPosition);
+		if (newPosition.Y < groundY)
+		{
+			velocity.Y = 0f;
+			newPosition.Y = groundY;
+			onGround = true;
+		}
+
+		// TODO: Collision with stuff in map
 
 		// Apply the final position
 		Position = newPosition;
