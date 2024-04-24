@@ -30,6 +30,9 @@ class Game
 
 	private static void Start()
 	{
+		// Load the settings
+		Settings.ReloadSettings();
+
 		// Start/initialize everything
 		Map.Load();
 		Player.Start(500, 300);

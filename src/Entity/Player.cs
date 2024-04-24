@@ -28,7 +28,7 @@ class Player
 	private static Vector3 forward;
 	private static Vector3 right;
 	private static bool onGround;
-	private static float walkForce = mass * 1.2f;
+	private static float walkForce = mass * 0.6f;
 	private static float jumpForce = mass * 0.04f;
 
 	public static void Start(int renderWidth, int renderHeight)
@@ -43,7 +43,7 @@ class Player
 			Position = Position + new Vector3(0, height - eyeYFromTopOfHead, 0),
 			Target = Vector3.Zero,
 			Up = Vector3.UnitY,
-			FovY = 60f,
+			FovY = Settings.Fov,
 			Projection = CameraProjection.Perspective
 		};
 
@@ -87,7 +87,7 @@ class Player
 	private static void HeadMovement()
 	{
 		// Get the mouse movement in degrees
-		Vector2 mouseDelta = Raylib.GetMouseDelta() * 150;
+		Vector2 mouseDelta = Raylib.GetMouseDelta() * Settings.Sensitivity;
 		float mouseX = mouseDelta.X / Raylib.GetScreenWidth();
 		float mouseY = mouseDelta.Y / Raylib.GetScreenHeight();
 
@@ -120,12 +120,12 @@ class Player
 		Vector3 movementForce = Vector3.Zero;
 
 		// Forwards/backwards
-		if (Raylib.IsKeyDown(KeyboardKey.W)) movementForce += forward;
-		if (Raylib.IsKeyDown(KeyboardKey.S)) movementForce -= forward;
+		if (Raylib.IsKeyDown(Settings.Forwards)) movementForce += forward;
+		if (Raylib.IsKeyDown(Settings.Backwards)) movementForce -= forward;
 
 		// Left/right
-		if (Raylib.IsKeyDown(KeyboardKey.A)) movementForce -= right;
-		if (Raylib.IsKeyDown(KeyboardKey.D)) movementForce += right;
+		if (Raylib.IsKeyDown(Settings.Left)) movementForce -= right;
+		if (Raylib.IsKeyDown(Settings.Right)) movementForce += right;
 
 		// Apply speed to the direction and normalize
 		if (movementForce != Vector3.Zero) movementForce = Vector3.Normalize(movementForce);
@@ -157,9 +157,8 @@ class Player
 
 
 		// Check for if the player wants to jump
-		if (Raylib.IsKeyPressed(KeyboardKey.Space) && onGround)
+		if (Raylib.IsKeyPressed(Settings.Jump) && onGround)
 		{
-			Console.WriteLine("jumping rn (eligible)");
 			velocity.Y = jumpForce;
 			onGround = false;
 		}
