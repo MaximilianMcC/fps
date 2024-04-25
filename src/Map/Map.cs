@@ -14,7 +14,7 @@ class Map
 	public static void Load()
 	{
 		ground = new Prop("ground", "pavement");
-		fence = new Prop("fence1", "chain-link-fence");
+		fence = new Prop("fence", "chain-link-fence");
 	}
 
 	public static void Render()
@@ -30,7 +30,7 @@ class Map
 		const float length = 3f;
 		for (int i = 0; i < 10; i++)
 		{
-			fence.Render(new Vector3(i * length, 0f, -10f), Vector3.UnitY, 0f);
+			fence.Render(new Vector3(5f - (i * length), 0f, -10f), Vector3.UnitY, 0f);
 		}
 	}
 
@@ -63,7 +63,6 @@ class Prop
 		// Load everything
 		Texture = Raylib.LoadTexture(texturesPath + texturePath + ".png");
 		Model = Raylib.LoadModel(modelsPath + modelPath + ".obj");
-
 
 		// Apply the texture to the model
 		Raylib.SetMaterialTexture(ref Model, 0, MaterialMapIndex.Albedo, ref Texture);

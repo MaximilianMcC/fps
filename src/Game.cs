@@ -11,7 +11,11 @@ class Game
 		Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
 		Raylib.SetConfigFlags(ConfigFlags.AlwaysRunWindow);
 		Raylib.InitWindow(854, 480, "Computer video game.");
-		
+
+
+		Raylib.SetExitKey(KeyboardKey.Null);
+
+
 		// Load everything
 		Start();
 		while (!Raylib.WindowShouldClose())
@@ -46,8 +50,8 @@ class Game
 
 	private static void Render()
 	{
-		// Clear the screen
-		Raylib.ClearBackground(Color.Magenta);
+		//? No need to clear the screen because its done in the Map class
+		//! Might not be the best idea to do it in the map class
 
 		// ---------------------------------------------------
 		Raylib.BeginTextureMode(Player.CameraOutput);
