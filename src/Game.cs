@@ -53,9 +53,6 @@ class Game
 		Raylib.BeginTextureMode(Player.CameraOutput);
 		Raylib.BeginMode3D(Player.Camera);
 
-		//! debug
-		Raylib.ClearBackground(Color.Blue);
-
 		// Render all the 3D stuff
 		Map.Render();
 		Raylib.DrawGrid(10, 1);
