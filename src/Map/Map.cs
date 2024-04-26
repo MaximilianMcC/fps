@@ -4,17 +4,20 @@ using Raylib_cs;
 class Map
 {	
 	public static readonly float Gravity = 9.81f;
+	
 	private static readonly Color skyColor = Color.Black;
 
 	// Props
 	private static Prop ground;
 	private static Prop fence;
+	private static Prop boxTruck;
 
 
 	public static void Load()
 	{
 		ground = new Prop("ground", "pavement");
 		fence = new Prop("fence", "chain-link-fence");
+		boxTruck = new Prop("truck", "box-truck");
 	}
 
 	public static void Render()
@@ -26,12 +29,14 @@ class Map
 
 		// Ground and fence
 		ground.Render(Vector3.Zero, Vector3.UnitY, 0f);
-		
 		const float length = 3f;
 		for (int i = 0; i < 10; i++)
 		{
 			fence.Render(new Vector3(5f - (i * length), 0f, -10f), Vector3.UnitY, 0f);
 		}
+
+		// Truck
+		boxTruck.Render(Vector3.Zero, Vector3.UnitZ, 0f);
 	}
 
 	public static void CleanUp()
@@ -39,6 +44,7 @@ class Map
 		// Unload everything
 		ground.Unload();
 		fence.Unload();
+		boxTruck.Unload();
 	}
 
 	public static float GetGroundY(Vector3 positionOnMap)
