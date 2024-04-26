@@ -11,9 +11,9 @@ class Game
 		Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
 		Raylib.SetConfigFlags(ConfigFlags.AlwaysRunWindow);
 		Raylib.InitWindow(854, 480, "Computer video game.");
-
-
+		Raylib.InitAudioDevice();
 		Raylib.SetExitKey(KeyboardKey.Null);
+
 
 
 		// Load everything
@@ -76,6 +76,7 @@ class Game
 
 		// Close all the raylib stuff
 		//! Make sure this is always done very last
+		Raylib.CloseAudioDevice();
 		Raylib.CloseWindow();
 	}
 }

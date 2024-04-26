@@ -16,10 +16,11 @@ class Player
 	// Dimensions
 	private static float height = 1.65f;
 	private static float eyeYFromTopOfHead = 0.15f;
+	private static float legLength = height * 0.45f;
+	private static float strideLength = legLength * 1.5f;
 
 	// Physics stuff
 	private static Vector3 velocity;
-	private static float mass = 62f;
 	private static float frictionCoefficient = 0.1f;
 
 	// Movement stuff
@@ -28,8 +29,15 @@ class Player
 	private static Vector3 forward;
 	private static Vector3 right;
 	private static bool onGround;
-	private static float walkForce = mass * 0.6f;
-	private static float jumpForce = mass * 0.04f;
+
+	// force stuff
+	private static float mass = 62f / Map.Gravity;
+	private static float jumpForce = mass * 0.4f;
+	private static float walkForce = mass * 0.5f;
+
+	// Sounds
+	private static double lastTimeFootstepSoundPlayed;
+	private static Sound[] footsteps;
 
 	public static void Start(int renderWidth, int renderHeight)
 	{
@@ -45,6 +53,16 @@ class Player
 			Up = Vector3.UnitY,
 			FovY = Settings.Fov,
 			Projection = CameraProjection.Perspective
+		};
+
+		// Load the footstep sounds
+		footsteps = new Sound[]
+		{
+			Raylib.LoadSound("./assets/sound/footstep-1.ogg"),
+			Raylib.LoadSound("./assets/sound/footstep-2.ogg"),
+			Raylib.LoadSound("./assets/sound/footstep-3.ogg"),
+			Raylib.LoadSound("./assets/sound/footstep-4.ogg"),
+			Raylib.LoadSound("./assets/sound/footstep-5.ogg")
 		};
 
 		// Keep the players mouse in the centre of the screen
@@ -72,10 +90,14 @@ class Player
 
 		Raylib.DrawText($"Velocity: {velocity}\n\n\nPosition: {Position}\n\n\non ground rn {onGround}", 10, 10, 45, Color.White);
 	}
-
+	
 	public static void CleanUp()
 	{
-
+		// Unload all the footstep sounds
+		for (int i = 0; i < footsteps.Length; i++)
+		{
+			Raylib.UnloadSound(footsteps[i]);
+		}
 	}
 
 
@@ -140,6 +162,7 @@ class Player
 
 		// Apply friction to slow down the player overtime
 		// and if their velocity is tiny then just stop them
+		// And don't put it on the Y because its 
 		Vector3 friction = -frictionCoefficient * velocity;
 		velocity.X += friction.X;
 		velocity.Z += friction.Z;
@@ -157,10 +180,27 @@ class Player
 
 
 		// Check for if the player wants to jump
-		if (Raylib.IsKeyPressed(Settings.Jump) && onGround)
+		if (Raylib.IsKeyDown(Settings.Jump) && onGround)
 		{
 			velocity.Y = jumpForce;
 			onGround = false;
+		}
+
+		// Calculate the time between a footstep based on
+		// the current speed and check for if we need to play
+		// a footstep sound
+		// TODO: Chuck in another method
+		//! Length returns the real speed, but its very expensive
+		//? the * 2 for the footstep timing isn't actually real, but it sounds better. If change speed then can remove it
+		float timeBetweenFootstep = (strideLength / velocity.Length()) * 2;
+		double currentTime = Raylib.GetTime();
+		if ((currentTime - lastTimeFootstepSoundPlayed) >= timeBetweenFootstep)
+		{
+			// Update the timing stuff
+			lastTimeFootstepSoundPlayed = currentTime;
+
+			// Play a random footstep sound
+			Raylib.PlaySound(footsteps[Raylib.GetRandomValue(0, footsteps.Length - 1)]);
 		}
 
 
