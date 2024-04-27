@@ -14,7 +14,10 @@ class Player
 	private static Rectangle outputSource;
 
 	// Dimensions
+	public static BoundingBox BoundingBox;
+	private static float width = 0.5f;
 	private static float height = 1.65f;
+	private static float length = 0.4f;
 	private static float eyeYFromTopOfHead = 0.15f;
 	private static float legLength = height * 0.45f;
 	private static float strideLength = legLength * 1.5f;
@@ -54,6 +57,14 @@ class Player
 			FovY = Settings.Fov,
 			Projection = CameraProjection.Perspective
 		};
+
+		// Create the bounding box for collisions and stuff
+		// TODO: Maybe make the player a cylinder for better collisions or something
+		BoundingBox = new BoundingBox(
+			new Vector3(0, 0, 0),
+			new Vector3(width, height, length)
+		);
+
 
 		// Load the footstep sounds
 		footsteps = new Sound[]
@@ -169,12 +180,7 @@ class Player
 		if (velocity.LengthSquared() < 0.1f) velocity *= new Vector3(0f, 1f, 0f);
 
 
-		//! debug
-		if (Raylib.IsKeyPressed(KeyboardKey.Up)) Position.Y	= 100f;
-
-
 		// Apply gravity to make the player fall
-		// TODO: See if delta time is actually required here
 		// TODO: Make mass do something to this
 		velocity.Y -= Map.Gravity * Raylib.GetFrameTime();
 
@@ -194,7 +200,7 @@ class Player
 		//? the * 2 for the footstep timing isn't actually real, but it sounds better. If change speed then can remove it
 		float timeBetweenFootstep = (strideLength / velocity.Length()) * 2;
 		double currentTime = Raylib.GetTime();
-		if ((currentTime - lastTimeFootstepSoundPlayed) >= timeBetweenFootstep)
+		if ((currentTime - lastTimeFootstepSoundPlayed) >= timeBetweenFootstep && onGround)
 		{
 			// Update the timing stuff
 			lastTimeFootstepSoundPlayed = currentTime;
