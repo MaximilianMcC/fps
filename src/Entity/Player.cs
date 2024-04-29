@@ -40,7 +40,7 @@ class Player
 
 	// Sounds
 	private static double lastTimeFootstepSoundPlayed;
-	private static Sound[] footsteps;
+	private static Sound footstep;
 
 	public static void Start(int renderWidth, int renderHeight)
 	{
@@ -67,14 +67,7 @@ class Player
 
 
 		// Load the footstep sounds
-		footsteps = new Sound[]
-		{
-			Raylib.LoadSound("./assets/sound/footstep-1.ogg"),
-			Raylib.LoadSound("./assets/sound/footstep-2.ogg"),
-			Raylib.LoadSound("./assets/sound/footstep-3.ogg"),
-			Raylib.LoadSound("./assets/sound/footstep-4.ogg"),
-			Raylib.LoadSound("./assets/sound/footstep-5.ogg")
-		};
+		footstep = Raylib.LoadSound("./assets/sound/footstep.ogg");
 
 		// Keep the players mouse in the centre of the screen
 		// and hide it so they can look around normally
@@ -104,11 +97,8 @@ class Player
 	
 	public static void CleanUp()
 	{
-		// Unload all the footstep sounds
-		for (int i = 0; i < footsteps.Length; i++)
-		{
-			Raylib.UnloadSound(footsteps[i]);
-		}
+		// Unload the footstep sound
+		Raylib.UnloadSound(footstep);
 	}
 
 
@@ -205,8 +195,11 @@ class Player
 			// Update the timing stuff
 			lastTimeFootstepSoundPlayed = currentTime;
 
-			// Play a random footstep sound
-			Raylib.PlaySound(footsteps[Raylib.GetRandomValue(0, footsteps.Length - 1)]);
+			// Play the footstep sound effect with
+			// a random pitch to make it sound different
+			//? Using these numbers because method only takes in int
+			Raylib.SetSoundPitch(footstep, Raylib.GetRandomValue(70, 110) / 100f);
+			Raylib.PlaySound(footstep);
 		}
 
 
