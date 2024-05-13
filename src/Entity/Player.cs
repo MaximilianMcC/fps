@@ -12,6 +12,8 @@ class Player
 	public static Camera3D Camera;
 	public static RenderTexture2D CameraOutput;
 	private static Rectangle outputSource;
+	private static float bobbingTimer;
+	private static Vector3 bobbing;
 
 	// Dimensions
 	public static BoundingBox BoundingBox;
@@ -65,7 +67,6 @@ class Player
 			new Vector3(width, height, length)
 		);
 
-
 		// Load the footstep sounds
 		footstep = Raylib.LoadSound("./assets/sound/footstep.ogg");
 
@@ -82,7 +83,7 @@ class Player
 		BodyMovement();
 
 		// Move and update the camera
-		Camera.Position = Position + new Vector3(0, height - eyeYFromTopOfHead, 0);
+		Camera.Position = Position + new Vector3(0, height - eyeYFromTopOfHead, 0) + bobbing;
 		Camera.Target = Camera.Position + forwardDirection;
 	}
 
@@ -100,8 +101,6 @@ class Player
 		// Unload the footstep sound
 		Raylib.UnloadSound(footstep);
 	}
-
-
 
 
 
@@ -135,6 +134,19 @@ class Player
 
 		// Assign the direction Forward for controlling camera rotation
 		forwardDirection = Vector3.Transform(-Vector3.UnitZ, rotation);
+
+
+
+		// Apply view bobbing
+		// TODO: Maybe setting to turn off, but also part of art-style so idk
+		//! timer will eventually overflow (47 days according to gbt)
+		float bobbingIntensity = velocity.LengthSquared() * 0.05f;
+		const float bobbingSpeed = 1f;
+
+		bobbingTimer += Raylib.GetFrameTime();
+		float bobbingOffset = MathF.Sin(bobbingTimer * bobbingSpeed) * bobbingIntensity;
+
+		bobbing = new Vector3(bobbingOffset, bobbingOffset, 0f);
 	}
 
 	private static void BodyMovement()
