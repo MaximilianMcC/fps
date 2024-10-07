@@ -1,9 +1,10 @@
 ﻿using Shared;
 
+namespace Server;
 class Program
 {
 	public static void Main(string[] args)
 	{
-		Console.WriteLine("Kia ora (server)");
+		Logger.Log("Kia ora!");
 	}
 }

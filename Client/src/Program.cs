@@ -1,11 +1,12 @@
 ﻿using Raylib_cs;
 using Shared;
 
+namespace Client;
 class Program
 {
 	public static void Main(string[] args)	
 	{
-		Console.WriteLine("Kia ora (client)");
+		Logger.Log("Kia ora!");
 
 		Raylib.SetTraceLogLevel(TraceLogLevel.Warning);
 		Raylib.InitWindow(854, 480, "Marl Multiplayer Game (mmg)");
