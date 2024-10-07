@@ -1,2 +1,0 @@
-# fps game
-Basic idea for the game is you play as a robber who goes around and steals stuff on a hijacked train. To steal stuff you need to solve puzzles and escape on your train before the cops arrive.
