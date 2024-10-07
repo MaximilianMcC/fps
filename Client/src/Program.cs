@@ -11,10 +11,19 @@ class Program
 		Raylib.SetTraceLogLevel(TraceLogLevel.Warning);
 		Raylib.InitWindow(854, 480, "Marl Multiplayer Game (mmg)");
 
+		// Connect to the server
+		// TODO: Put this in start method or something idk
+		// TODO: Get port and ip from args or ui
+		const int Port = 54321;
+		const string ip = "127.0.0.1";
+		Networker.Network(Port, ip, "test");
+
 		while (!Raylib.WindowShouldClose())
 		{
 			Raylib.BeginDrawing();
 			Raylib.ClearBackground(Color.Magenta);
+
+
 
 
 
