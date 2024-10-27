@@ -78,11 +78,17 @@ class Player : Entity
 			if (Raylib.IsKeyDown(KeyboardKey.W)) yMovement += 1;
 			if (Raylib.IsKeyDown(KeyboardKey.S)) yMovement += -1;
 
-			// Apply the direction vector to the movement
-			// TODO: Don't reuse this from UpdateCamera
-			// TODO: Just plus this on in UpdateCamera or something
+			// Get a matrix just with yaw/x rotation so that
+			// our speed isn't affected by the heads pitch
+			// TODO: Use the normal rotation quaternion if you want freecam
+			float yaw = Yaw * Raylib.DEG2RAD;
+			Quaternion yawRotation = Quaternion.CreateFromYawPitchRoll(yaw, 0f, 0f);
+
+			// Apply the direction vector to the movement and
+			// normalize it so its the same for all directions
 			Vector3 directionInput = new Vector3(xMovement, 0, yMovement);
-			Vector3 direction = Vector3.Transform(directionInput, rotation);
+			Vector3 direction = Vector3.Transform(directionInput, yawRotation);
+			Vector3.Normalize(direction);
 
 			// Apply speed and whatnot to get the movement
 			// TODO: Velocity based movement system
