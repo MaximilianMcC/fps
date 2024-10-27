@@ -11,6 +11,7 @@ class Player : Entity
 	Quaternion rotation = Quaternion.Identity;
 
 	// Actual moving stuff
+	bool freecam = false;
 	float speed = 45f;
 
 	private float eyeHeight = 1.7f;
@@ -33,10 +34,6 @@ class Player : Entity
 
 	private void UpdateCamera()
 	{
-		// Target.X = Horizontal rotation
-		// Target.Y = Vertical rotation
-		// Target.Z = Direction
-
 		// Get the direction (Z) using the
 		// rotation quaternion thingy
 		Vector3 direction = Vector3.Transform(Vector3.UnitZ, rotation);
@@ -80,14 +77,18 @@ class Player : Entity
 
 			// Get a matrix just with yaw/x rotation so that
 			// our speed isn't affected by the heads pitch
-			// TODO: Use the normal rotation quaternion if you want freecam
 			float yaw = Yaw * Raylib.DEG2RAD;
 			Quaternion yawRotation = Quaternion.CreateFromYawPitchRoll(yaw, 0f, 0f);
+
+			// Check for what matrix we use depending if 
+			// we're using freecam or not
+			// TODO: Don't calculate the yaw only rotation if its not being used
+			Quaternion movementRotation = freecam ? rotation : yawRotation;
 
 			// Apply the direction vector to the movement and
 			// normalize it so its the same for all directions
 			Vector3 directionInput = new Vector3(xMovement, 0, yMovement);
-			Vector3 direction = Vector3.Transform(directionInput, yawRotation);
+			Vector3 direction = Vector3.Transform(directionInput, movementRotation);
 			Vector3.Normalize(direction);
 
 			// Apply speed and whatnot to get the movement
@@ -103,10 +104,14 @@ class Player : Entity
 	{
 		Movement();
 		UpdateCamera();
+
+		// Check for if they wanna toggle freecam (N)
+		if (Raylib.IsKeyPressed(KeyboardKey.N)) freecam = !freecam;
 	}
 
 	public override void Render2D()
 	{
-		Raylib.DrawText($"{Camera.Position}\n\n{Camera.Target}\n\n\n\n{Position}", 10, 10, 35, Color.White);
+		string freecamStatus = freecam ? "yup" : "nah";
+		Raylib.DrawText($"freecamming rn: {freecamStatus}", 10, 10, 35, Color.White);
 	}
 }
