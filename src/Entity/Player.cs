@@ -8,11 +8,10 @@ class Player : Entity
 	// Head stuff
 	public float Yaw;
 	public float Pitch;
-	Quaternion rotation = Quaternion.Identity;
 
 	// Actual moving stuff
 	bool freecam = false;
-	float speed = 45f;
+	float speed = 4.5f;
 
 	private float eyeHeight = 1.7f;
 	private float sensitivity = 250f;
@@ -36,7 +35,7 @@ class Player : Entity
 	{
 		// Get the direction (Z) using the
 		// rotation quaternion thingy
-		Vector3 direction = Vector3.Transform(Vector3.UnitZ, rotation);
+		Vector3 direction = Vector3.Transform(Vector3.UnitZ, Rotation);
 
 		// Update the position, and the
 		// target based on the position
@@ -50,7 +49,7 @@ class Player : Entity
 		{
 			// Get what direction the player is looking at
 			// and update the yaw and pitch accordingly
-			//? Using 89 instead of 90 to avoid gimbal lock
+			//? Using 89 instead of 90 to avoid gimbal lock or something
 			Vector2 mouseMovement = Raylib.GetMouseDelta() * sensitivity * Raylib.GetFrameTime();
 			Yaw -= mouseMovement.X;
 			Pitch = Math.Clamp(Pitch + mouseMovement.Y, -89f, 89f);
@@ -60,7 +59,9 @@ class Player : Entity
 			// converted to radians 
 			float yaw = Yaw * Raylib.DEG2RAD;
 			float pitch = Pitch * Raylib.DEG2RAD;
-			rotation = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0f);
+			Rotation = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0f);
+
+			
 		}
 
 		// Keyboard movement/moving around
@@ -83,7 +84,7 @@ class Player : Entity
 			// Check for what matrix we use depending if 
 			// we're using freecam or not
 			// TODO: Don't calculate the yaw only rotation if its not being used
-			Quaternion movementRotation = freecam ? rotation : yawRotation;
+			Quaternion movementRotation = freecam ? Rotation : yawRotation;
 
 			// Apply the direction vector to the movement and
 			// normalize it so its the same for all directions
