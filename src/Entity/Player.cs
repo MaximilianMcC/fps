@@ -9,22 +9,25 @@ class Player : Entity
 	// Head stuff
 	public float Yaw;
 	public float Pitch;
-	private float eyeHeight = 1.7f;
 	private float sensitivity = 250f;
 
-	// Actual moving stuff
+	// Moving stuff
 	private bool freecam = false;
 	private float freecamFlySpeed = 24f;
 	private float walkingSpeed = 4.5f;
 	private float runningSpeed = 8f;
 
+	// Body proportion stuff
+	private float eyeHeight = 1.7f;
+	private float mass = 85f;
+
 	// TODO: Put this in the map or something
 	private float gravity = 9.807f;
-	private Vector3 velocity;
-	private float mass = 85f;
 	private const float terminalVelocity = 55f;
 	private float friction = 0.1f;
-	private bool useGravity = false;
+
+	//! get rid of this fully idk
+	private Vector3 previousPosition;
 
 	public override void Start()
 	{
@@ -98,7 +101,7 @@ class Player : Entity
 
 			// Update the players position with the new movement
 			UpdateVelocity(direction);
-			Position += velocity * Raylib.GetFrameTime();
+			Position += Velocity * Raylib.GetFrameTime();
 		}
 	}
 
@@ -111,20 +114,28 @@ class Player : Entity
 		float targetSpeed = Raylib.IsKeyDown(KeyboardKey.LeftControl) ? runningSpeed : walkingSpeed;
 		if (freecam) targetSpeed = freecamFlySpeed;
 
-		// Get the target velocity that we're
-		// gonna go up to overtime (velocity)
+		// Get the target Velocity that we're
+		// gonna go up to overtime (Velocity)
 		// and the force required to get to it
 		Vector3 targetVelocity = direction * targetSpeed;
-		Vector3 force = (targetVelocity - velocity) * mass;
+		Vector3 force = (targetVelocity - Velocity) * mass;
 
-		// Add the force to the velocity to
+		// Add the force to the Velocity to
 		// actually make the player move
-		velocity += force * Raylib.GetFrameTime();
+		Velocity += force * Raylib.GetFrameTime();
 
 		// Add friction so the player can
 		// stop eventually
 		float deltaFriction = 1 - (friction * Raylib.GetFrameTime());
-		velocity *= deltaFriction;
+		Velocity *= deltaFriction;
+	}
+
+	private float GetSpeed()
+	{
+		Vector3 deltaPosition = Position - previousPosition;
+		float speed = deltaPosition.Length() / Raylib.GetFrameTime();
+		previousPosition = Position;
+		return speed;
 	}
 
 	public override void Update()
@@ -136,15 +147,7 @@ class Player : Entity
 		if (Raylib.IsKeyPressed(KeyboardKey.N))
 		{
 			freecam = !freecam;
-			if (freecam) velocity.Y = 0;
-		}
-
-		//! temp debug
-		// Check for if they wanna toggle gravity (G)
-		if (Raylib.IsKeyPressed(KeyboardKey.G))
-		{
-			useGravity = !useGravity;
-			if (useGravity == false) velocity.Y = 0;
+			// if (freecam) Velocity.Y = 0;
 		}
 	}
 
@@ -154,7 +157,9 @@ class Player : Entity
 		Debug.PrintBoolean("freecam", freecam, 10);
 
 
-		Debug.PrintVector3("velocity", velocity, 50);
+		Debug.PrintVector3("Velocity", Velocity, 50);
 		Debug.PrintVector3("position", Position, 200);
+
+		Debug.PrintFloat("Speed", GetSpeed(), 500, 2);
 	}
 }
