@@ -20,8 +20,10 @@ class Player : Entity
 
 	// TODO: Put this in the map or something
 	private float gravity = 9.807f;
+	private float mass = 60f;
 	private const float terminalVelocity = 55f;
 	private Vector3 velocity;
+	private float friction = 0.1f;
 	private bool useGravity = false;
 
 	public override void Start()
@@ -87,41 +89,42 @@ class Player : Entity
 			// are in freecam or not
 			Quaternion rotation = freecam ? Rotation : Quaternion.CreateFromYawPitchRoll(yaw, 0f, 0f);
 
-			// Apply the direction vector to the movement
+			// Get the direction that we're gonna move
 			// TODO: Don't reuse this from UpdateCamera
 			// TODO: Just plus this on in UpdateCamera or something
 			Vector3 directionInput = new Vector3(xMovement, 0, yMovement);
 			Vector3 direction = Vector3.Transform(directionInput, rotation);
 			if (direction != Vector3.Zero) direction = Vector3.Normalize(direction);
 
-			// Apply speed and whatnot to get the movement
-			// TODO: Velocity based movement system
-			Vector3 movement = (GetMovement() * direction) * Raylib.GetFrameTime();
-
 			// Update the players position with the new movement
-			Position += movement;
+			UpdateVelocity(direction);
+			Position += velocity * Raylib.GetFrameTime();
 		}
 	}
 
 	// Get the speed and gravity and all that
-	private Vector3 GetMovement()
+	// TODO: Velocity based movement system
+	private void UpdateVelocity(Vector3 direction)
 	{
-		// Default movement of nothing
-		Vector3 movement = Vector3.One;
+		// Check for if they're running, walking, or
+		// in freecam and use that as the target speed
+		float targetSpeed = Raylib.IsKeyDown(KeyboardKey.LeftControl) ? runningSpeed : walkingSpeed;
+		if (freecam) targetSpeed = freecamFlySpeed;
 
-		// Check for if they're running or walking
-		float speed = Raylib.IsKeyDown(KeyboardKey.LeftControl) ? runningSpeed : walkingSpeed;
-		if (freecam) speed = freecamFlySpeed;
-		movement *= speed;
+		// Get the target velocity that we're
+		// gonna go up to overtime (velocity)
+		// and the force required to get to it
+		Vector3 targetVelocity = direction * targetSpeed;
+		Vector3 force = (targetVelocity - velocity) * mass;
 
-		// Apply gravity and make sure they don't reach terminal velocity
-		// TODO: Put this in the entity class
-		// TODO: Don't make terminal velocity negative here
-		velocity.Y -= (gravity * (useGravity ? 1 : 0)) * Raylib.GetFrameTime();
-		if (velocity.Y > terminalVelocity) velocity.Y = -terminalVelocity;
+		// Remove the Y component from the force
+		// to stop up from flying
+		// TODO: Allow it if we're in freecam
+		force.Y = 0f;
 
-		// Give back the new movement
-		return movement;
+		// Add the force, and friction to the velocity
+		velocity += force * Raylib.GetFrameTime();
+		velocity *= 1 - friction;
 	}
 
 	public override void Update()
@@ -130,7 +133,11 @@ class Player : Entity
 		UpdateCamera();
 
 		// Check for if they wanna toggle freecam (N)
-		if (Raylib.IsKeyPressed(KeyboardKey.N)) freecam = !freecam;
+		if (Raylib.IsKeyPressed(KeyboardKey.N))
+		{
+			freecam = !freecam;
+			if (freecam) velocity.Y = 0;
+		}
 
 		//! temp debug
 		// Check for if they wanna toggle gravity (G)
@@ -144,13 +151,10 @@ class Player : Entity
 	// TODO: debug class and whatnot
 	public override void Render2D()
 	{
-		string freecamStatus = freecam ? "yup" : "nah";
-		Raylib.DrawText($"freecamming rn: {freecamStatus}", 10, 10, 35, Color.White);
+		Debug.PrintBoolean("freecam", freecam, 10);
 
 
 		Debug.PrintVector3("velocity", velocity, 50);
-		Debug.PrintBoolean("Gravity", useGravity, 150);
-
 		Debug.PrintVector3("position", Position, 200);
 	}
 }
