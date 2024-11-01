@@ -20,9 +20,9 @@ class Player : Entity
 
 	// TODO: Put this in the map or something
 	private float gravity = 9.807f;
-	private float mass = 60f;
-	private const float terminalVelocity = 55f;
 	private Vector3 velocity;
+	private float mass = 85f;
+	private const float terminalVelocity = 55f;
 	private float friction = 0.1f;
 	private bool useGravity = false;
 
@@ -117,14 +117,14 @@ class Player : Entity
 		Vector3 targetVelocity = direction * targetSpeed;
 		Vector3 force = (targetVelocity - velocity) * mass;
 
-		// Remove the Y component from the force
-		// to stop up from flying
-		// TODO: Allow it if we're in freecam
-		force.Y = 0f;
-
-		// Add the force, and friction to the velocity
+		// Add the force to the velocity to
+		// actually make the player move
 		velocity += force * Raylib.GetFrameTime();
-		velocity *= 1 - friction;
+
+		// Add friction so the player can
+		// stop eventually
+		float deltaFriction = 1 - (friction * Raylib.GetFrameTime());
+		velocity *= deltaFriction;
 	}
 
 	public override void Update()
