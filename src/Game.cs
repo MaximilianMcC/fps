@@ -11,6 +11,7 @@ class Game
 
 		// Add crap idk
 		Things.Add(new Grid());
-		Things.Add(new Temp());
+		// Things.Add(new Temp());
+		Things.Add(new Chel());
 	}
 }
