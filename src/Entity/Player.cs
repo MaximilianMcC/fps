@@ -22,7 +22,7 @@ class Player : Entity
 	private float mass = 85f;
 
 	// TODO: Put this in the map or something
-	private float gravity = 9.807f;
+	private float gravity = 9.81f;
 	private const float terminalVelocity = 55f;
 	private float friction = 0.1f;
 
@@ -101,12 +101,12 @@ class Player : Entity
 
 			// Update the players position with the new movement
 			UpdateVelocity(direction);
+			UpdateGravity();
 			Position += Velocity * Raylib.GetFrameTime();
 		}
 	}
 
-	// Get the speed and gravity and all that
-	// TODO: Velocity based movement system
+	// Get the speed and all that
 	private void UpdateVelocity(Vector3 direction)
 	{
 		// Check for if they're running, walking, or
@@ -124,17 +124,36 @@ class Player : Entity
 		// actually make the player move
 		Velocity += force * Raylib.GetFrameTime();
 
-		// Add friction so the player can
-		// stop eventually
+		// Add friction just on the X/Z (no Y)
 		float deltaFriction = 1 - (friction * Raylib.GetFrameTime());
 		Velocity *= deltaFriction;
+
+		// If friction is tiny then just kill it
+		// TODO: Switch to LengthSquared()
+		if (Velocity.Length() < 0.1f) Velocity = Vector3.Zero;
 	}
 
+	// Add gravity
+	public void UpdateGravity()
+	{
+		// Don't use gravity if we're in freecam
+		if (freecam) return;
+
+		// Apply gravity
+		Velocity.Y += -gravity * Raylib.GetFrameTime();
+
+		// Stop increasing gravity if we reach terminal velocity
+		if (Velocity.Y > terminalVelocity) Velocity.Y = -terminalVelocity;
+	}
+
+	// TODO: Remove
+	//! dodgy
 	private float GetSpeed()
 	{
 		Vector3 deltaPosition = Position - previousPosition;
 		float speed = deltaPosition.Length() / Raylib.GetFrameTime();
 		previousPosition = Position;
+
 		return speed;
 	}
 
@@ -155,6 +174,7 @@ class Player : Entity
 	public override void Render2D()
 	{
 		Debug.PrintBoolean("freecam", freecam, 10);
+
 
 
 		Debug.PrintVector3("Velocity", Velocity, 50);
