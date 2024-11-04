@@ -3,15 +3,40 @@ using Raylib_cs;
 class InputManager
 {
 	// Movement keys
-	public readonly KeyboardKey Forwards = KeyboardKey.W;
-	public readonly KeyboardKey Backwards = KeyboardKey.S;
-	public readonly KeyboardKey Left = KeyboardKey.A;
-	public readonly KeyboardKey Right = KeyboardKey.D;
+	public static readonly KeyboardKey Forwards = KeyboardKey.W;
+	public static readonly KeyboardKey Backwards = KeyboardKey.S;
+	public static readonly KeyboardKey Left = KeyboardKey.A;
+	public static readonly KeyboardKey Right = KeyboardKey.D;
 
 	// Fancy movement stuff
-	public readonly KeyboardKey Sprint = KeyboardKey.LeftControl;
-	public readonly KeyboardKey ToggleFreecam = KeyboardKey.N;
+	public static readonly KeyboardKey Sprint = KeyboardKey.LeftControl;
+	public static readonly KeyboardKey Jump = KeyboardKey.Space;
+	public static readonly KeyboardKey ToggleFreecam = KeyboardKey.N;
 
 	// Mouse stuff
 	public readonly float Sensitivity = 250f;
+
+
+
+	public static float HorizontalInput()
+	{
+		// Add/subtract from the direction thingy so that
+		// the two things can cancel each other out if needed
+		float direction = 0;
+		if (Raylib.IsKeyDown(Left)) direction++;
+		if (Raylib.IsKeyDown(Right)) direction--;
+
+		return direction;
+	}
+
+	public static float VerticalInput()
+	{
+		// Add/subtract from the direction thingy so that
+		// the two things can cancel each other out if needed
+		float direction = 0;
+		if (Raylib.IsKeyDown(Forwards)) direction++;
+		if (Raylib.IsKeyDown(Backwards)) direction--;
+
+		return direction;
+	}
 }

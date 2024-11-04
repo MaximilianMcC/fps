@@ -78,59 +78,37 @@ class Player : Entity
 
 		// Keyboard movement/moving around
 		{
-			// Capture all the left/right movement
-			int xMovement = 0;
-			if (Raylib.IsKeyDown(KeyboardKey.A)) xMovement += 1;
-			if (Raylib.IsKeyDown(KeyboardKey.D)) xMovement += -1;
+			// Get the movement input
+			Vector3 inputDirection = new Vector3(
+				InputManager.HorizontalInput(),
+				0,
+				InputManager.VerticalInput()
+			);
 
-			// Capture all the forwards/backwards movement
-			int yMovement = 0;
-			if (Raylib.IsKeyDown(KeyboardKey.W)) yMovement += 1;
-			if (Raylib.IsKeyDown(KeyboardKey.S)) yMovement += -1;
+			// TODO: Use length squared
+			// Normalize it
+			if (inputDirection.Length() > 0) inputDirection = Vector3.Normalize(inputDirection);
 
-			// Get the direction vector depending on if we
-			// are in freecam or not
-			Quaternion rotation = freecam ? Rotation : Quaternion.CreateFromYawPitchRoll(yaw, 0f, 0f);
+			// Get the movement direction vectors
+			Vector3 forwards = Vector3.Transform(Vector3.UnitZ, Rotation);
+			Vector3 right = Vector3.Cross(Camera.Up, forwards);
 
-			// Get the direction that we're gonna move
-			// TODO: Don't reuse this from UpdateCamera
-			// TODO: Just plus this on in UpdateCamera or something
-			Vector3 directionInput = new Vector3(xMovement, 0, yMovement);
-			Vector3 direction = Vector3.Transform(directionInput, rotation);
-			if (direction != Vector3.Zero) direction = Vector3.Normalize(direction);
+			// Combine the forwards and right vectors to get
+			// the direction that the player has to move in
+			Vector3 direction = (forwards * inputDirection.Z) + (right * inputDirection.X);		
 
-			// Update the players position with the new movement
-			UpdateVelocity(direction);
-			UpdateGravity();
+			// Get the new velocity to apply rn
+			//! temp Y thing
+			Vector3 newVelocity = direction * walkingSpeed * new Vector3(1, 0, 1);
+
+			// Apply velocity, and friction
+			Velocity += newVelocity;
+			Velocity.X -= Velocity.X * friction;
+			Velocity.Z -= Velocity.Z * friction;
+
+			// Update the position
 			Position += Velocity * Raylib.GetFrameTime();
 		}
-	}
-
-	// Get the speed and all that
-	private void UpdateVelocity(Vector3 direction)
-	{
-		// Check for if they're running, walking, or
-		// in freecam and use that as the target speed
-		float targetSpeed = Raylib.IsKeyDown(KeyboardKey.LeftControl) ? runningSpeed : walkingSpeed;
-		if (freecam) targetSpeed = freecamFlySpeed;
-
-		// Get the target Velocity that we're
-		// gonna go up to overtime (Velocity)
-		// and the force required to get to it
-		Vector3 targetVelocity = direction * targetSpeed;
-		Vector3 force = (targetVelocity - Velocity) * mass;
-
-		// Add the force to the Velocity to
-		// actually make the player move
-		Velocity += force * Raylib.GetFrameTime();
-
-		// Add friction just on the X/Z (no Y)
-		float deltaFriction = 1 - (friction * Raylib.GetFrameTime());
-		Velocity *= deltaFriction;
-
-		// If friction is tiny then just kill it
-		// TODO: Switch to LengthSquared()
-		if (Velocity.Length() < 0.1f) Velocity = Vector3.Zero;
 	}
 
 	// Add gravity
@@ -140,10 +118,7 @@ class Player : Entity
 		if (freecam) return;
 
 		// Apply gravity
-		Velocity.Y += -gravity * Raylib.GetFrameTime();
-
-		// Stop increasing gravity if we reach terminal velocity
-		if (Velocity.Y > terminalVelocity) Velocity.Y = -terminalVelocity;
+		Velocity.Y += -(gravity * gravity) * Raylib.GetFrameTime();
 	}
 
 	// TODO: Remove
