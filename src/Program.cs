@@ -16,6 +16,7 @@ class Program
 		{
 			// Update everything
 			Game.Things.ForEach(thing => thing.Update());
+			Debug.Update();
 
 			// Start drawing
 			Raylib.BeginDrawing();
@@ -28,6 +29,7 @@ class Program
 
 			// Draw all the 2D stuff
 			Game.Things.ForEach(thing => thing.Render2D());
+			Debug.Draw();
 			Raylib.EndDrawing();
 		}
 
