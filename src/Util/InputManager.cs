@@ -14,7 +14,10 @@ class InputManager
 	public static readonly KeyboardKey ToggleFreecam = KeyboardKey.N;
 
 	// Mouse stuff
-	public readonly float Sensitivity = 250f;
+	//? sensitivity scaler is used to let us use a bigger number for sensitivity idk
+	private const float sensitivityScaler = 0.000135f;
+	public static readonly float Sensitivity = 250f * sensitivityScaler;
+
 
 
 

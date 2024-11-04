@@ -9,7 +9,6 @@ class Player : Entity
 	// Head stuff
 	public float Yaw;
 	public float Pitch;
-	private float sensitivity = 250f;
 
 	// Moving stuff
 	private bool freecam = false;
@@ -24,7 +23,7 @@ class Player : Entity
 	// TODO: Put this in the map or something
 	private float gravity = 9.81f;
 	private const float terminalVelocity = 55f;
-	private float friction = 0.1f;
+	private float friction = 0.5f;
 
 	//! get rid of this fully idk
 	private Vector3 previousPosition;
@@ -63,7 +62,7 @@ class Player : Entity
 			// Get what direction the player is looking at
 			// and update the yaw and pitch accordingly
 			//? Using 89 instead of 90 to avoid gimbal lock or something
-			Vector2 mouseMovement = Raylib.GetMouseDelta() * sensitivity * Raylib.GetFrameTime();
+			Vector2 mouseMovement = Raylib.GetMouseDelta() * InputManager.Sensitivity;
 			Yaw -= mouseMovement.X;
 			Pitch = Math.Clamp(Pitch + mouseMovement.Y, -89f, 89f);
 		}
@@ -106,19 +105,12 @@ class Player : Entity
 			Velocity.X -= Velocity.X * friction;
 			Velocity.Z -= Velocity.Z * friction;
 
+			// If the velocity is low as then just set it to 0
+			if (Velocity.LengthSquared() < 0.1f) Velocity = Vector3.Zero;
+
 			// Update the position
 			Position += Velocity * Raylib.GetFrameTime();
 		}
-	}
-
-	// Add gravity
-	public void UpdateGravity()
-	{
-		// Don't use gravity if we're in freecam
-		if (freecam) return;
-
-		// Apply gravity
-		Velocity.Y += -(gravity * gravity) * Raylib.GetFrameTime();
 	}
 
 	// TODO: Remove
