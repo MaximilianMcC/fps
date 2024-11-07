@@ -3,39 +3,42 @@ using Raylib_cs;
 
 class Debug
 {
-	private static int targetFpsIndex;
-	private static int[] targetFpsses = new int[] { 10, 30, 60, 100 };
+	public static bool Enabled = false;
+	private static StringWriter debugOutput;
 
-	// TODO: Make a 3D visualization where you can see the 
-	public static void PrintVector3(string vectorName, Vector3 value, int y)
+	public static void StartSnaggingOutput()
 	{
-		Raylib.DrawText($"{vectorName} X: {value.X}\n\n{vectorName} Y: {value.Y}\n\n{vectorName} Z: {value.Z}", 10, y, 20, Color.White);
-	}
-
-	public static void PrintBoolean(string booleanName, bool value, int y)
-	{
-		Raylib.DrawText($"{booleanName}: {value}", 10, y, 20, Color.White);
-	}
-
-	public static void PrintFloat(string floatName, float value, int y, int precision = 16)
-	{
-		Raylib.DrawText($"{floatName}: {value.ToString("F" + precision)}", 10, y, 20, Color.White);
+		// Redirect the console output to a
+		// string thingy so we can steal it
+		// and print it nicely in raylib
+		debugOutput = new StringWriter();
+		Console.SetOut(debugOutput);
 	}
 
 	public static void Update()
 	{
-		if (Raylib.IsKeyPressed(KeyboardKey.T))
-		{
-			targetFpsIndex++;
-			if (targetFpsIndex >= targetFpsses.Length) targetFpsIndex = 0;
-			Raylib.SetTargetFPS(targetFpsses[targetFpsIndex]);
-		}
+		// Check for if we wanna toggle debug mode
+		if (Raylib.IsKeyPressed(InputManager.ToggleDebug)) Enabled = !Enabled;
+
+		// Draw the fps
+		Console.WriteLine(Raylib.GetFPS() + "\n");
 	}
 
 	public static void Draw()
 	{
-		PrintFloat("target fps", targetFpsses[targetFpsIndex], 320, 0);
-		PrintFloat("fps", Raylib.GetFPS(), 350, 0);
+		// Only show the stuff if we need to 
+		if (Enabled == false) return;
 
+		// Get all of the text that we've printed
+		// then clear it for the next frame
+		string debugText = debugOutput.ToString();
+		debugOutput.GetStringBuilder().Clear();
+
+		// Make the newlines actually a new line
+		//! Raylib issue. Remove when fixed
+		debugText = debugText.Replace("\n", "\n\n");
+
+		// Draw the output with raylib
+		Raylib.DrawText(debugText, 10, 10, 25, Color.White);
 	}
 }

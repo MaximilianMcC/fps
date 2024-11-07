@@ -8,6 +8,10 @@ class Program
 		Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
 		Raylib.InitWindow(854, 480, "Bulletproof backpack");
 
+		// Debug stuff
+		Debug.Enabled = true;
+		Debug.StartSnaggingOutput();
+
 		// Start everything
 		Game.SetUp();
 		Game.Things.ForEach(thing => thing.Start());

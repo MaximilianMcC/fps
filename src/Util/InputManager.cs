@@ -18,6 +18,9 @@ class InputManager
 	private const float sensitivityScaler = 0.000135f;
 	public static readonly float Sensitivity = 250f * sensitivityScaler;
 
+	// Other stuff
+	public static readonly KeyboardKey ToggleDebug = KeyboardKey.Grave;
+
 
 
 
