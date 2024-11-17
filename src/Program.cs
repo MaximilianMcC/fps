@@ -10,7 +10,6 @@ class Program
 
 		// Debug stuff
 		Debug.Enabled = true;
-		Debug.StartSnaggingOutput();
 
 		// Start everything
 		Game.SetUp();
@@ -28,11 +27,19 @@ class Program
 
 			// Draw all the 3D stuff
 			Raylib.BeginMode3D(Game.Player.Camera);
-			Game.Things.ForEach(thing => thing.Render3D());
+			foreach (Updatable thing in Game.Things)
+			{
+				thing.Render3D();
+				thing.RenderDebug3D();
+			}
 			Raylib.EndMode3D();
 
 			// Draw all the 2D stuff
-			Game.Things.ForEach(thing => thing.Render2D());
+			foreach (Updatable thing in Game.Things)
+			{
+				thing.Render2D();
+				thing.RenderDebug2D();
+			}
 			Debug.Draw();
 			Raylib.EndDrawing();
 		}
