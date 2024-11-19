@@ -1,3 +1,4 @@
+using System.Numerics;
 using Raylib_cs;
 
 class InputManager
@@ -44,5 +45,11 @@ class InputManager
 		if (Raylib.IsKeyDown(Backwards)) direction--;
 
 		return direction;
+	}
+
+	// Get the X and Z from movement input
+	public static Vector3 GetDirectionInput()
+	{
+		return new Vector3(HorizontalInput(), 0, VerticalInput());
 	}
 }

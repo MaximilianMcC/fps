@@ -1,32 +1,25 @@
 using System.Numerics;
 using Raylib_cs;
 
+
 class Player : Entity
 {
-	// Camera (kinda important)
+	// Camera (important)
 	public Camera3D Camera;
 
-	// Head stuff
-	public float Yaw;
-	public float Pitch;
-
-	// Moving stuff
+	// Movement variables
+	private float yaw, pitch;
 	private bool freecam = false;
-	private float freecamFlySpeed = 24f;
-	private float walkingSpeed = 4.5f;
-	private float runningSpeed = 8f;
+	private Quaternion headRotation;
 
-	// Body proportion stuff
-	private float eyeHeight = 1.7f;
-	private float mass = 85f;
+	// Body proportions and physics properties
+	private float height = 1.75f;
+	private float eyeHeight = 1.645f;
+	private float mass = 57.5f;
 
-	// TODO: Put this in the map or something
-	private float gravity = 9.81f;
-	private const float terminalVelocity = 55f;
-	private float friction = 0.5f;
-
-	//! get rid of this fully idk
-	private Vector3 previousPosition;
+	// Physics stuff
+	private float frictionCoefficient = 0.001f;
+	private float acceleration = 100f;
 
 	public override void Start()
 	{
@@ -45,108 +38,84 @@ class Player : Entity
 
 	private void UpdateCamera()
 	{
-		// Get the direction (Z) using the
-		// rotation quaternion thingy
-		Vector3 direction = Vector3.Transform(Vector3.UnitZ, Rotation);
+		// Get the direction that we're looking
+		Vector3 direction = Vector3.Transform(Vector3.UnitZ, headRotation);
 
-		// Update the position, and the
-		// target based on the position
-		Camera.Position = Position + (Vector3.UnitY * eyeHeight);
-		Camera.Target = Position + (Vector3.UnitY * eyeHeight) + direction;
+		// Get the current camera position
+		// and update the camera accordingly
+		Vector3 cameraPosition = Position + (Vector3.UnitY * eyeHeight);
+		Camera.Position = cameraPosition;
+		Camera.Target = cameraPosition + direction;
 	}
 
-	private void Movement()
+	private void Move()
 	{
 		// Mouse movement/looking around
-		{
-			// Get what direction the player is looking at
-			// and update the yaw and pitch accordingly
-			//? Using 89 instead of 90 to avoid gimbal lock or something
-			Vector2 mouseMovement = Raylib.GetMouseDelta() * InputManager.Sensitivity;
-			Yaw -= mouseMovement.X;
-			Pitch = Math.Clamp(Pitch + mouseMovement.Y, -89f, 89f);
-		}
-
-		// Update the quaternion rotation thingy based
-		// on the newly updated yaw and pitch values
-		// converted to radians
-		// TODO: Put inside mouse scope
-		float yaw = Yaw * Raylib.DEG2RAD;
-		float pitch = Pitch * Raylib.DEG2RAD;
-		Rotation = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0f);
+		HandleMouseLook();
 
 		// Keyboard movement/moving around
-		{
-			// Get the movement input
-			Vector3 inputDirection = new Vector3(
-				InputManager.HorizontalInput(),
-				0,
-				InputManager.VerticalInput()
-			);
-
-			// TODO: Use length squared
-			// Normalize it
-			if (inputDirection.Length() > 0) inputDirection = Vector3.Normalize(inputDirection);
-
-			// Get the movement direction vectors
-			Vector3 forwards = Vector3.Transform(Vector3.UnitZ, Rotation);
-			Vector3 right = Vector3.Cross(Camera.Up, forwards);
-
-			// Combine the forwards and right vectors to get
-			// the direction that the player has to move in
-			Vector3 direction = (forwards * inputDirection.Z) + (right * inputDirection.X);		
-
-			// Get the new velocity to apply rn
-			//! temp Y thing
-			Vector3 newVelocity = direction * walkingSpeed * new Vector3(1, 0, 1);
-
-			// Apply velocity, and friction
-			Velocity += newVelocity;
-			Velocity.X -= Velocity.X * friction;
-			Velocity.Z -= Velocity.Z * friction;
-
-			// If the velocity is low as then just set it to 0
-			if (Velocity.LengthSquared() < 0.1f) Velocity = Vector3.Zero;
-
-			// Update the position
-			Position += Velocity * Raylib.GetFrameTime();
-		}
+		HandleKeyboardMovement();
 	}
 
-	// TODO: Remove
-	//! dodgy
-	private float GetSpeed()
+	private void HandleMouseLook()
 	{
-		Vector3 deltaPosition = Position - previousPosition;
-		float speed = deltaPosition.Length() / Raylib.GetFrameTime();
-		previousPosition = Position;
+		// Get the new yaw and pitch (look around)
+		Vector2 mouseMovement = Raylib.GetMouseDelta() * InputManager.Sensitivity;
+		yaw -= mouseMovement.X;
+		pitch = Math.Clamp(pitch + mouseMovement.Y, -89f, 89f);
 
-		return speed;
+		// Update the quaternion rotation
+		float yawRadians = yaw * Raylib.DEG2RAD;
+		float pitchRadians = pitch * Raylib.DEG2RAD;
+		headRotation = Quaternion.CreateFromYawPitchRoll(yawRadians, pitchRadians, 0f);
+		Rotation = Quaternion.CreateFromYawPitchRoll(yawRadians, (freecam ? pitchRadians: 0f), 0f);
+	}
+
+	private void HandleKeyboardMovement()
+	{
+		// Get the movement input and normalize it
+		Vector3 inputDirection = InputManager.GetDirectionInput();		
+		if (inputDirection.LengthSquared() > 0) inputDirection = Vector3.Normalize(inputDirection);
+
+		// Create direction vectors based on player rotation
+		Vector3 forwards = Vector3.Transform(Vector3.UnitZ, Rotation);
+		Vector3 right = Vector3.Cross(Camera.Up, forwards);
+
+		// Combine the directions to get the final movement direction
+		Vector3 direction = (forwards * inputDirection.Z) + (right * inputDirection.X);
+
+		// Actually move, then update the position
+		ApplyMovementForces(direction);
+		Position += Velocity * Raylib.GetFrameTime();
+	}
+
+	private void ApplyMovementForces(Vector3 direction)
+	{
+		// Apply acceleration
+		Velocity += (acceleration * direction) * Raylib.GetFrameTime();
+
+		// Apply friction
+		// TODO: Remove/bake the `1 -` thingy
+		Velocity *= 1 - frictionCoefficient;
+
+		// If the velocity is tiny as and we're not
+		// moving then just kill it yk
+		float speed = Velocity.LengthSquared();
+		if (speed < 0.1f && direction == Vector3.Zero) Velocity = Vector3.Zero;
 	}
 
 	public override void Update()
 	{
-		Movement();
+		Move();
 		UpdateCamera();
 
-		// Check for if they wanna toggle freecam (N)
-		if (Raylib.IsKeyPressed(KeyboardKey.N))
-		{
-			freecam = !freecam;
-			// if (freecam) Velocity.Y = 0;
-		}
+		// Check for freecam toggle
+		if (Raylib.IsKeyPressed(KeyboardKey.N)) freecam = !freecam;
 	}
 
-	// TODO: debug class and whatnot
-	public override void Render2D()
+	public override void RenderDebug2D()
 	{
-		Debug.PrintBoolean("freecam", freecam, 10);
-
-
-
-		Debug.PrintVector3("Velocity", Velocity, 50);
-		Debug.PrintVector3("position", Position, 200);
-
-		Debug.PrintFloat("Speed", GetSpeed(), 500, 2);
+		// Display debug info
+		Raylib.DrawText($"Position: {Position}\n\nVelocity: {Velocity}\n\nSpeed: {Velocity.Length()} m/s\n\n\n\n\nfreecam: {freecam}", 10, 10, 30, Color.White);
 	}
 }
