@@ -26,8 +26,13 @@ class Player : Entity
 	private float acceleration = 1000f;
 	private float maxVelocity = 10f;
 
+	//! Temp
+	private Texture2D hands;
+
 	public override void Start()
 	{
+		hands = AssetManager.LoadTexture("./assets/hands.png");
+
 		// Create the camera
 		Camera = new Camera3D()
 		{
@@ -89,7 +94,6 @@ class Player : Entity
 		// Combine the directions to get the final movement direction
 		Vector3 direction = (forwards * inputDirection.Z) + (right * inputDirection.X);
 
-
 		// Check for if we wanna run/walk
 		// TODO: Maybe decrease friction for freecam
 		if (freecam) maxVelocity = freecamVelocity;
@@ -127,6 +131,20 @@ class Player : Entity
 
 		// Check for freecam toggle
 		if (Raylib.IsKeyPressed(KeyboardKey.N)) freecam = !freecam;
+	}
+
+	public override void Render2D()
+	{
+		float handHeight = Raylib.GetScreenHeight() / 1.5f;
+
+		Raylib.DrawTexturePro(
+			hands,
+			new Rectangle(0, 0, hands.Width, hands.Height),
+			new Rectangle(0, Raylib.GetScreenHeight() - handHeight, Raylib.GetScreenWidth(), handHeight),
+			Vector2.Zero,
+			0f,
+			Color.White
+		);
 	}
 
 	public override void RenderDebug2D()
