@@ -1,7 +1,6 @@
 using System.Numerics;
 using Raylib_cs;
 
-
 class Player : Entity
 {
 	// Camera (important)
@@ -17,9 +16,15 @@ class Player : Entity
 	private float eyeHeight = 1.645f;
 	private float mass = 57.5f;
 
+	// Speeds
+	private float walkVelocity = 3f;
+	private float runVelocity = 5f;
+	private float freecamVelocity = 10f;
+
 	// Physics stuff
 	private float frictionCoefficient = 0.001f;
-	private float acceleration = 100f;
+	private float acceleration = 1000f;
+	private float maxVelocity = 10f;
 
 	public override void Start()
 	{
@@ -84,6 +89,12 @@ class Player : Entity
 		// Combine the directions to get the final movement direction
 		Vector3 direction = (forwards * inputDirection.Z) + (right * inputDirection.X);
 
+
+		// Check for if we wanna run/walk
+		// TODO: Maybe decrease friction for freecam
+		if (freecam) maxVelocity = freecamVelocity;
+		else maxVelocity = Raylib.IsKeyDown(InputManager.Sprint) ? runVelocity : walkVelocity;
+
 		// Actually move, then update the position
 		ApplyMovementForces(direction);
 		Position += Velocity * Raylib.GetFrameTime();
@@ -91,17 +102,22 @@ class Player : Entity
 
 	private void ApplyMovementForces(Vector3 direction)
 	{
-		// Apply acceleration
-		Velocity += (acceleration * direction) * Raylib.GetFrameTime();
-
-		// Apply friction
-		// TODO: Remove/bake the `1 -` thingy
-		Velocity *= 1 - frictionCoefficient;
+		// Only apply velocity if we're below the target velocity
+		float speed = Velocity.Length();
+		if (speed < maxVelocity)
+		{
+			// Apply acceleration based on the movement direction
+			Velocity += (acceleration * direction) * Raylib.GetFrameTime();
+		}
 
 		// If the velocity is tiny as and we're not
 		// moving then just kill it yk
-		float speed = Velocity.LengthSquared();
 		if (speed < 0.1f && direction == Vector3.Zero) Velocity = Vector3.Zero;
+
+		// Apply friction
+		//? Delta time isn't applied here because it is already applied previously
+		// TODO: Remove/bake the `1 -` thingy
+		Velocity *= (1 - frictionCoefficient);
 	}
 
 	public override void Update()
